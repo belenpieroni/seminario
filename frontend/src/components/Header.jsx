@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function Header({ nombre, apellido }) {
   const [fotoPerfil, setFotoPerfil] = useState(null);
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
+  const navigate = useNavigate();
 
   function handleImagenSeleccionada(e) {
     const archivo = e.target.files[0];
@@ -22,6 +24,14 @@ export function Header({ nombre, apellido }) {
     setFotoPerfil(null);
     setMostrarOpciones(false);
   }
+
+  function handleCerrarSesion() {
+    // Simulación de cierre de sesión
+    console.log("Sesión cerrada");
+    navigate("/");
+    setMostrarOpciones(false);
+  }
+
 
   return (
     <header className="border-b" style={{ backgroundColor: "#1a1a1a", borderColor: "#e5e5e5" }}>
@@ -62,6 +72,12 @@ export function Header({ nombre, apellido }) {
                     Eliminar foto de perfil
                   </button>
                 )}
+                <button
+                    onClick={handleCerrarSesion}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                >
+                    Cerrar sesión
+                </button>
               </div>
             )}
 
