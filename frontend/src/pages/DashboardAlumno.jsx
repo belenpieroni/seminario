@@ -1,34 +1,19 @@
-// src/pages/DashboardAlumno.jsx
-
 import { DojoInfo } from "../components/DojoInfo";
 import { Notifications } from "../components/Notifications";
 import { Certificados } from "../components/Certificados";
-import { User } from "lucide-react";
+import { Header } from "../components/Header";
+
+const alumno = {
+  nombre: "Cosme",
+  apellido: "Fulanito",
+  cinturon: "Cinturón Verde",
+  inscripcion: "Febrero 2022",
+};
 
 export default function DashboardAlumno() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f8f8f8' }}>
-      {/* Header */}
-      <header className="border-b" style={{ backgroundColor: '#1a1a1a', borderColor: '#e5e5e5' }}>
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="tracking-widest leading-relaxed" style={{ color: 'white' }}>
-                DOJO PORTAL
-              </h1>
-              <p className="mt-1 tracking-wide leading-relaxed" style={{ color: '#666666' }}>
-                Bienvenido de nuevo
-              </p>
-            </div>
-            <div 
-              className="flex items-center justify-center w-12 h-12 rounded-full"
-              style={{ backgroundColor: '#c41e3a' }}
-            >
-              <User className="w-6 h-6 text-white" />
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen" style={{ backgroundColor: "#f8f8f8" }}>
+      <Header nombre={alumno.nombre} apellido={alumno.apellido} />
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -48,7 +33,7 @@ export default function DashboardAlumno() {
                     Cinturón Actual
                   </p>
                   <p className="mt-1 tracking-wide leading-relaxed" style={{ color: '#c41e3a' }}>
-                    Cinturón Verde
+                    {alumno.cinturon}
                   </p>
                 </div>
                 <div>
@@ -56,7 +41,7 @@ export default function DashboardAlumno() {
                     Inscripción
                   </p>
                   <p className="mt-1 leading-relaxed" style={{ color: '#111111' }}>
-                    Febrero 2022
+                    {alumno.inscripcion}
                   </p>
                 </div>
               </div>
