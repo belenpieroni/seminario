@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Mail, Eye, EyeOff, Lock } from "lucide-react";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -6,6 +7,7 @@ import { Checkbox } from "../components/Checkbox";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [usuario, setUsuario] = useState("");
   const [contraseña, setContraseña] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -13,7 +15,16 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ usuario, contraseña, rememberMe });
+
+    // Simulación temporal de login sin backend
+    // REEMPLAZAR ESTO CON LA LLAMADA AL BACKEND
+    if (usuario === "mail@sensei.com" && contraseña === "1234") {
+      navigate("/sensei");
+    } else if (usuario === "mail@alumno.com" && contraseña === "1234") {
+      navigate("/alumno");
+    } else {
+      alert("Usuario o contraseña incorrectos");
+    }
   };
 
   return (
@@ -22,7 +33,7 @@ export default function Login() {
       <div className="w-full lg:w-1/2 relative">
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1609850280339-b85f1fd5d351?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXBhbmVzZSUyMHplbiUyMG1pbmltYWx8ZW58MXx8fHwxNzYwMDYyOTc4fDA&ixlib=rb-4.1.0&q=80&w=1080"
-          alt="Zen background"
+          alt="Bushido Spirit"
           className="w-full h-64 lg:h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/65 flex flex-col items-center justify-center text-white">
@@ -52,7 +63,7 @@ export default function Login() {
           </div>
 
           <h1 className="text-base sm:text-2xl md:text-3xl lg:text-5xl font-light tracking-[0.1em] mb-2 sm:mb-3 md:mb-4">
-            SECURE DOJO
+            DOJO PORTAL
           </h1>
           <div className="w-12 sm:w-16 md:w-24 h-0.5 bg-red-700 mb-2 sm:mb-3 md:mb-4"></div>
           <p className="text-[9px] sm:text-xs md:text-sm lg:text-base text-white/90 tracking-wider font-light">
@@ -88,8 +99,7 @@ export default function Login() {
                     placeholder="Email o nombre de usuario"
                     value={usuario}
                     onChange={(e) => setUsuario(e.target.value)}
-                    className="pl-10 h-12 border border-gray-300 rounded focus:border-red-700 focus:ring-1 focus:ring-red-700 transition-all w-full"
-                    required
+                    className="pl-10 h-12"
                   />
                 </div>
               </div>
@@ -107,7 +117,7 @@ export default function Login() {
                     placeholder="••••••••"
                     value={contraseña}
                     onChange={(e) => setContraseña(e.target.value)}
-                    className="pl-10 pr-10 h-12 border border-gray-300 rounded focus:border-red-700 focus:ring-1 focus:ring-red-700 transition-all w-full"
+                    className="pl-10 pr-10 h-12"
                     required
                   />
                   <button
@@ -133,12 +143,7 @@ export default function Login() {
               </div>
 
               {/* Botón */}
-              <Button
-                type="submit"
-                className="w-full h-12 bg-red-700 text-white font-medium hover:bg-red-800 transition-all tracking-wide"
-              >
-                INGRESAR
-              </Button>
+              <Button type="submit" className="w-full h-12">INGRESAR</Button>
             </form>
           </div>
 
