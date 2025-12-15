@@ -6,10 +6,10 @@ import { SenseiDashboard } from "./components/SenseiDashboard"
 import { SenseiStudentList } from "./components/SenseiStudentList"
 import { SenseiStudentDetail } from "./components/SenseiStudentDetail"
 import { SenseiExamForm } from "./components/SenseiExamForm"
-//import { StudentSidebar } from "./components/StudentSidebar"
-//import { StudentDashboard } from "./components/StudentDashboard"
-//import { StudentCertificates } from "./components/StudentCertificates"
-//import { StudentProfile } from "./components/StudentProfile"
+import { StudentSidebar } from "./components/StudentSidebar"
+import { StudentDashboard } from "./components/StudentDashboard"
+import { StudentCertificates } from "./components/StudentCertificates"
+import { StudentProfile } from "./components/StudentProfile"
 //import { VerifyCertificate } from "./components/VerifyCertificate"
 // import { AdminSidebar } from "./components/AdminSidebar"
 // import { AdminDojoList } from "./components/AdminDojoList"
@@ -102,7 +102,7 @@ export default function App() {
   const [senseis, setSenseis] = useState([
     {
       id: "1",
-      name: "Takeshi Yamamoto",
+      name: "Julián Gomez",
       dni: "11222333",
       rank: "5to Dan - Cinturón Negro",
       dojo: "Sakura Karate Dojo",
@@ -335,12 +335,7 @@ export default function App() {
             onLogout={handleLogout}
           />
         ) : userRole === "alumno" ? (
-          // <StudentSidebar
-          //   currentView={currentView}
-          //   onNavigate={setCurrentView}
-          //   onLogout={handleLogout}
-          // />
-          <SenseiSidebar
+          <StudentSidebar
             currentView={currentView}
             onNavigate={setCurrentView}
             onLogout={handleLogout}
@@ -399,17 +394,21 @@ export default function App() {
             )}
           </>
         )}
-
-        {/*
-        === VISTA ALUMNO (NO IMPLEMENTADA AÚN) ===
         {userRole === "alumno" && (
           <>
-            <StudentDashboard />
-            <StudentCertificates />
-            <StudentProfile />
+            {currentView === "dashboard" && (
+              <StudentDashboard student={currentStudentData} />
+            )}
+
+            {currentView === "certificados" && (
+              <StudentCertificates certificates={certificates} />
+            )}
+
+            {currentView === "perfil" && (
+              <StudentProfile student={currentStudentData} />
+            )}
           </>
         )}
-        */}
 
         {/*
         === VISTA ADMIN (NO IMPLEMENTADA AÚN) ===

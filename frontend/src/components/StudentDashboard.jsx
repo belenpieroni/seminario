@@ -2,6 +2,13 @@ import { Award, Building2, User } from "lucide-react"
 import { StudentBeltProgress } from "./StudentBeltProgress"
 
 export function StudentDashboard({ student }) {
+  if (!student) {
+    return (
+      <div className="p-8 text-gray-500">
+        Cargando información del alumno...
+      </div>
+    );
+  }
   return (
     <div className="p-8">
       <h2 className="text-[#1a1a1a] mb-8">Mi progreso</h2>
