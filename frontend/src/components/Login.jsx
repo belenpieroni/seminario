@@ -1,9 +1,18 @@
 import { useState } from "react"
+import bgSensei from "../assets/bg-sensei.jpg"
+import bgAlumno from "../assets/bg-student.jpg"
+import bgAsociacion from "../assets/bg-asociacion.jpg"
 
 export function Login({ onLogin }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("sensei")
+  const backgrounds = {
+    sensei: bgSensei,
+    alumno: bgAlumno,
+    asociacion: bgAsociacion
+  }
+
 
   const handleSubmit = e => {
     e.preventDefault()
@@ -11,8 +20,14 @@ export function Login({ onLogin }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8f8f8] px-4">
-      <div className="w-full max-w-md">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center transition-all duration-500"
+      style={{
+        backgroundImage: `url(${backgrounds[role]})`
+      }}
+    >
+      <div className="absolute inset-0 bg-black/20"></div>
+      <div className="relative w-full max-w-md">
         <div className="bg-white rounded-lg shadow-xl p-8 border-t-4 border-[#c41e3a]">
           <div className="text-center mb-8">
             <h1 className="text-[#1a1a1a] mb-2">Sistema de Gestión de Dojos</h1>
