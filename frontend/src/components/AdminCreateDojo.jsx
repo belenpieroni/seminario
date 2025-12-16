@@ -1,29 +1,69 @@
 import { useState } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, X } from "lucide-react";
+
+const LOCALIDADES_POR_PROVINCIA = {
+  "Buenos Aires": [
+    "La Plata",
+    "Mar del Plata",
+    "Bahía Blanca",
+    "Tandil",
+    "Quilmes",
+    "San Isidro",
+    "Avellaneda",
+    "Lomas de Zamora",
+    "Morón",
+    "San Miguel",
+    "Tigre",
+    "Vicente López",
+  ],
+  Córdoba: [
+    "Córdoba Capital",
+    "Villa Carlos Paz",
+    "Río Cuarto",
+    "Villa María",
+    "Alta Gracia",
+  ],
+  "Santa Fe": [
+    "Rosario",
+    "Santa Fe Capital",
+    "Rafaela",
+    "Venado Tuerto",
+  ],
+};
+
+const PROVINCIAS = Object.keys(LOCALIDADES_POR_PROVINCIA);
 
 export default function AdminCreateDojo({ onCreateDojo }) {
   const [activeTab, setActiveTab] = useState("dojo");
+  const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [generatedEmail, setGeneratedEmail] = useState("");
 
   const [dojoData, setDojoData] = useState({
     name: "",
     address: "",
-    locality: "",
     province: "",
+    locality: "",
     phone: "",
     senseiName: "",
     senseiRank: "",
   });
 
-  const provinces = [
-    "Buenos Aires",
-    "Córdoba",
-    "Santa Fe",
-    "Mendoza",
-    "Tucumán",
-    "Entre Ríos",
-  ];
+  const [provinceFilter, setProvinceFilter] = useState("");
+  const [localityFilter, setLocalityFilter] = useState("");
+  const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
+  const [showLocalityDropdown, setShowLocalityDropdown] = useState(false);
+
+  const filteredProvinces = PROVINCIAS.filter(p =>
+    p.toLowerCase().includes(provinceFilter.toLowerCase())
+  );
+
+  const filteredLocalities =
+    dojoData.province && LOCALIDADES_POR_PROVINCIA[dojoData.province]
+      ? LOCALIDADES_POR_PROVINCIA[dojoData.province].filter(l =>
+          l.toLowerCase().includes(localityFilter.toLowerCase())
+        )
+      : [];
 
   const generateEmail = (senseiName, dojoName) => {
     const parts = senseiName.toLowerCase().trim().split(" ");
@@ -33,257 +73,364 @@ export default function AdminCreateDojo({ onCreateDojo }) {
     return `${first}${last}@acargo.${dojoSlug}.com`;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
-    if (!dojoData.name || !dojoData.senseiName || !dojoData.senseiRank) {
-      alert("Completá todos los datos requeridos.");
-      return;
-    }
+    const email = generateEmail(dojoData.senseiName, dojoData.name);
+    setGeneratedEmail(email);
 
-    try {
-      const email = generateEmail(dojoData.senseiName, dojoData.name);
-      setGeneratedEmail(email);
+    const payload = {
+      dojo: {
+        name: dojoData.name.trim(),
+        address: dojoData.address.trim(),
+        province: dojoData.province,
+        locality: dojoData.locality,
+        phone: `+54${dojoData.phone}`,
+      },
+      sensei: {
+        full_name: dojoData.senseiName.trim(),
+        rank: dojoData.senseiRank,
+      },
+    };
 
-      const payload = {
-        dojo: {
-          name: dojoData.name.trim(),
-          address: dojoData.address.trim(),
-          locality: dojoData.locality.trim(),
-          province: dojoData.province,
-          phone: `+54${dojoData.phone}`,
-        },
-        sensei: {
-          full_name: dojoData.senseiName.trim(),
-          rank: dojoData.senseiRank,
-        },
-      };
+    await onCreateDojo(payload);
 
-      await onCreateDojo(payload);
+    setShowConfirm(false);
+    setShowSuccess(true);
 
-      setShowSuccess(true);
-
-      setTimeout(() => {
-        setShowSuccess(false);
-        setActiveTab("dojo");
-        setDojoData({
-          name: "",
-          address: "",
-          locality: "",
-          province: "",
-          phone: "",
-          senseiName: "",
-          senseiRank: "",
-        });
-      }, 3500);
-
-    } catch (err) {
-      console.error(err);
-      alert("Error creando dojo y sensei.");
-    }
+    setTimeout(() => {
+      setShowSuccess(false);
+      setActiveTab("dojo");
+      setDojoData({
+        name: "",
+        address: "",
+        province: "",
+        locality: "",
+        phone: "",
+        senseiName: "",
+        senseiRank: "",
+      });
+    }, 3500);
   };
 
   return (
     <div className="p-8">
-      <h2 className="text-2xl font-semibold text-[#1a1a1a] mb-6">
-        Crear nuevo Dojo
-      </h2>
+      <h2 className="text-2xl text-[#1a1a1a] mb-6">Crear nuevo Dojo</h2>
 
       {showSuccess && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-6">
+        <div className="mb-6 bg-green-50 border border-green-200 p-6">
           <div className="flex items-center gap-3 mb-3">
-            <CheckCircle className="w-6 h-6 text-green-600" />
+            <CheckCircle className="text-green-600" />
             <h3 className="text-green-800">Dojo creado exitosamente</h3>
           </div>
           <p className="text-green-700">
-            Se ha asignado el sensei a cargo y se ha creado su usuario.
+            Email generado: <strong>{generatedEmail}</strong>
           </p>
-          <div className="mt-4 p-3 bg-white rounded border border-green-300">
-            <p className="text-gray-600">Email generado para el sensei:</p>
-            <p className="text-[#1a1a1a] mt-1">{generatedEmail}</p>
-            <p className="text-gray-600 mt-2">Contraseña temporal: Karate2025!</p>
-          </div>
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="flex border-b border-gray-200">
+      <div className="bg-white shadow-md">
+        {/* TABS */}
+        <div className="flex border-b">
           <button
-            type="button"
             onClick={() => setActiveTab("dojo")}
-            className={`px-6 py-3 font-medium ${
+            className={`flex-1 py-4 ${
               activeTab === "dojo"
-                ? "border-b-2 border-[#c41e3a] text-[#1a1a1a]"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-[#c41e3a] text-white"
+                : "bg-gray-50 text-gray-600"
             }`}
           >
             Información del Dojo
           </button>
           <button
-            type="button"
             onClick={() => setActiveTab("sensei")}
-            className={`px-6 py-3 font-medium ${
+            className={`flex-1 py-4 ${
               activeTab === "sensei"
-                ? "border-b-2 border-[#c41e3a] text-[#1a1a1a]"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-[#c41e3a] text-white"
+                : "bg-gray-50 text-gray-600"
             }`}
           >
             Sensei a cargo
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Tab Dojo */}
+        <form className="p-6 space-y-6">
+          {/* DOJO */}
           {activeTab === "dojo" && (
             <>
+              {/* Nombre */}
               <div>
-                <label className="block mb-2 text-[#1a1a1a]">Nombre del Dojo</label>
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-lg">
-                    Dojo
-                  </span>
+                <div className="flex border">
+                  <span className="px-4 py-3 bg-gray-100 border-r">Dojo</span>
                   <input
-                    type="text"
+                    className="flex-1 px-4 py-3"
                     value={dojoData.name}
-                    onChange={(e) =>
+                    onChange={e =>
                       setDojoData({ ...dojoData, name: e.target.value })
                     }
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                    placeholder="Dragón"
-                    required
+                    placeholder="Nombre"
                   />
                 </div>
               </div>
 
+              {/* Dirección */}
               <div>
-                <label className="block mb-2 text-[#1a1a1a]">Dirección</label>
                 <input
-                  type="text"
+                  className="w-full px-4 py-3 border"
                   value={dojoData.address}
-                  onChange={(e) =>
+                  onChange={e =>
                     setDojoData({ ...dojoData, address: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                  placeholder="Calle Falsa 123"
-                  required
+                  placeholder="Dirección"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-2 text-[#1a1a1a]">Localidad</label>
+              {/* Provincia */}
+              <div>
+                <div className="relative">
                   <input
-                    type="text"
-                    value={dojoData.locality}
-                    onChange={(e) =>
-                      setDojoData({ ...dojoData, locality: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                    placeholder="Ej: Córdoba"
-                    required
+                    className="w-full px-4 py-3 border"
+                    value={dojoData.province || provinceFilter}
+                    onChange={e => {
+                      setProvinceFilter(e.target.value);
+                      setDojoData({ ...dojoData, province: "", locality: "" });
+                      setShowProvinceDropdown(true);
+                    }}
+                    onFocus={() => setShowProvinceDropdown(true)}
+                    placeholder="Provincia..."
                   />
-                </div>
-                <div>
-                  <label className="block mb-2 text-[#1a1a1a]">Provincia</label>
-                  <select
-                    value={dojoData.province}
-                    onChange={(e) =>
-                      setDojoData({ ...dojoData, province: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                    required
-                  >
-                    <option value="">Seleccionar provincia</option>
-                    {provinces.map((prov) => (
-                      <option key={prov} value={prov}>
-                        {prov}
-                      </option>
-                    ))}
-                  </select>
+                  {showProvinceDropdown && (
+                    <div className="absolute w-full bg-white border max-h-60 overflow-y-auto">
+                      {filteredProvinces.map(p => (
+                        <div
+                          key={p}
+                          onClick={() => {
+                            setDojoData({ ...dojoData, province: p });
+                            setProvinceFilter("");
+                            setShowProvinceDropdown(false);
+                          }}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          {p}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
+              {/* Localidad */}
               <div>
-                <label className="block mb-2 text-[#1a1a1a]">Teléfono</label>
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-lg">
-                    +54
-                  </span>
+                <label className="block mb-2">Localidad</label>
+                <div className="relative">
                   <input
-                    type="text"
+                    className="w-full px-4 py-3 border disabled:bg-gray-100"
+                    value={dojoData.locality || localityFilter}
+                    onChange={e => {
+                      setLocalityFilter(e.target.value);
+                      setShowLocalityDropdown(true);
+                    }}
+                    onFocus={() =>
+                      dojoData.province && setShowLocalityDropdown(true)
+                    }
+                    disabled={!dojoData.province}
+                    placeholder="Localidad..."
+                  />
+                  {showLocalityDropdown && (
+                    <div className="absolute w-full bg-white border max-h-60 overflow-y-auto">
+                      {filteredLocalities.map(l => (
+                        <div
+                          key={l}
+                          onClick={() => {
+                            setDojoData({ ...dojoData, locality: l });
+                            setLocalityFilter("");
+                            setShowLocalityDropdown(false);
+                          }}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          {l}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Teléfono */}
+              <div>
+                <div className="flex border">
+                  <span className="px-4 py-3 bg-gray-100 border-r">+54</span>
+                  <input
+                    className="flex-1 px-4 py-3"
                     value={dojoData.phone}
-                    onChange={(e) =>
+                    onChange={e =>
                       setDojoData({ ...dojoData, phone: e.target.value })
                     }
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                    placeholder="11 1234-5678"
-                    required
                   />
                 </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("sensei")}
+                  className="px-6 py-3 bg-[#c41e3a] text-white"
+                >
+                  Siguiente
+                </button>
               </div>
             </>
           )}
 
-          {/* Tab Sensei */}
+          {/* SENSEI */}
           {activeTab === "sensei" && (
             <>
               <div>
-                <label className="block mb-2 text-[#1a1a1a]">Nombre y apellido</label>
+                <label className="block mb-2">Nombre y apellido</label>
                 <input
-                  type="text"
+                  className="w-full px-4 py-3 border"
                   value={dojoData.senseiName}
-                  onChange={(e) =>
+                  onChange={e =>
                     setDojoData({ ...dojoData, senseiName: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                  placeholder="Takeshi Yamamoto"
-                  required
                 />
               </div>
 
               <div>
-                <label className="block mb-2 text-[#1a1a1a]">Grado de Dan</label>
+                <label className="block mb-2">Rango</label>
                 <select
+                  className="w-full px-4 py-3 border"
                   value={dojoData.senseiRank}
-                  onChange={(e) =>
+                  onChange={e =>
                     setDojoData({ ...dojoData, senseiRank: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                  required
                 >
-                  <option value="">Seleccionar rango...</option>
-                  <option value="1er Dan"> 1er Dan </option>
-                  <option value="2do Dan"> 2do Dan </option>
-                  <option value="3er Dan"> 3er Dan </option>
-                  <option value="4to Dan"> 4to Dan </option>
-                  <option value="5to Dan"> 5to Dan </option>
-                  <option value="6to Dan"> 6to Dan </option>
-                  <option value="7mo Dan"> 7mo Dan </option>
-                  <option value="8vo Dan"> 8vo Dan </option>
-                  <option value="9no Dan"> 9no Dan </option>
+                  <option value="">Seleccionar rango</option>
+                  <option>1er Dan</option>
+                  <option>2do Dan</option>
+                  <option>3er Dan</option>
+                  <option>4to Dan</option>
+                  <option>5to Dan</option>
+                  <option>6to Dan</option>
+                  <option>7mo Dan</option>
+                  <option>8vo Dan</option>
+                  <option>9no Dan</option>
                 </select>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                <p className="text-blue-800">
-                  Se creará un usuario con email:{" "}
+              <div className="bg-orange-50 border p-4">
+                Email:{" "}
+                <strong>
                   {dojoData.senseiName && dojoData.name
                     ? generateEmail(dojoData.senseiName, dojoData.name)
                     : "nombreapellido@acargo.nombredojo.com"}
-                </p>
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("dojo")}
+                  className="px-6 py-3 bg-gray-300"
+                >
+                  Atrás
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(true)}
+                  className="px-6 py-3 bg-[#c41e3a] text-white"
+                >
+                  Crear Dojo
+                </button>
               </div>
             </>
           )}
-
-          <button
-            type="submit"
-            className="w-full bg-[#c41e3a] text-white py-3 rounded-lg hover:bg-[#a01830] transition-colors"
-          >
-            Crear Dojo y asignar Sensei
-          </button>
         </form>
       </div>
+
+      {/* MODAL */}
+      {showConfirm && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 className="text-[#1a1a1a] text-lg">Confirmar creación de Dojo</h3>
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Información del Dojo */}
+          <div className="p-6 space-y-6">
+            <div>
+              <h4 className="text-[#1a1a1a] mb-4 font-semibold">Información del Dojo</h4>
+              <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Nombre:</span>
+                  <span className="text-[#1a1a1a]">{dojoData.name}</span>
+                </div>
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Dirección:</span>
+                  <span className="text-[#1a1a1a]">{dojoData.address}</span>
+                </div>
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Provincia:</span>
+                  <span className="text-[#1a1a1a]">{dojoData.province}</span>
+                </div>
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Localidad:</span>
+                  <span className="text-[#1a1a1a]">{dojoData.locality}</span>
+                </div>
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Teléfono:</span>
+                  <span className="text-[#1a1a1a]">+54 {dojoData.phone}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Información del Sensei */}
+            <div>
+              <h4 className="text-[#1a1a1a] mb-4 font-semibold">Sensei a cargo</h4>
+              <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Nombre:</span>
+                  <span className="text-[#1a1a1a]">{dojoData.senseiName}</span>
+                </div>
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Rango:</span>
+                  <span className="text-[#1a1a1a]">{dojoData.senseiRank}</span>
+                </div>
+                <div className="flex">
+                  <span className="text-gray-600 w-32">Email:</span>
+                  <span className="text-[#1a1a1a]">
+                    {generateEmail(dojoData.senseiName, dojoData.name)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Botones */}
+          <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="px-8 py-3 bg-gray-400 text-white hover:bg-gray-500 transition-colors rounded-md"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="px-8 py-3 bg-[#c41e3a] text-white hover:bg-[#a01830] transition-colors rounded-md"
+            >
+              Confirmar
+            </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
