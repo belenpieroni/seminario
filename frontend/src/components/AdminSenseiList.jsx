@@ -1,174 +1,105 @@
-import { useState } from "react"
-import { Trash2, Plus } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Eye } from "lucide-react";
+import { getHeadSenseis, getSenseisByDojo } from "../queries/senseiQueries";
 
-export function AdminSenseiList({ senseis, onDeleteSensei, onAddSensei }) {
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [newSensei, setNewSensei] = useState({
-    name: "",
-    dni: "",
-    rank: "",
-    dojo: ""
-  })
+export function AdminSenseiList({ onDeleteSensei, onAddSensei }) {
+  const [senseis, setSenseis] = useState([]);
+  const [selectedDojo, setSelectedDojo] = useState(null);
 
-  const handleSubmit = e => {
-    e.preventDefault()
-    onAddSensei(newSensei)
-    setNewSensei({ name: "", dni: "", rank: "", dojo: "" })
-    setShowAddForm(false)
-  }
+  // Traer solo senseis a cargo
+  useEffect(() => {
+    async function fetchSenseis() {
+      const data = await getHeadSenseis();
+      setSenseis(data);
+    }
+    fetchSenseis();
+  }, []);
+
+  const handleViewDetails = async (sensei) => {
+    const dojoSenseis = await getSenseisByDojo(sensei.dojo.id);
+    setSelectedDojo({ ...sensei, dojoSenseis });
+  };
 
   return (
     <div className="p-8">
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-[#1a1a1a]">Senseis registrados</h2>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 bg-[#c41e3a] text-white px-6 py-3 rounded-lg hover:bg-[#a01830] transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Agregar Sensei
-        </button>
-      </div>
+        <h2 className="text-[#1a1a1a] text-2xl font-semibold">Senseis a cargo</h2>
+    </div>
 
-      {showAddForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h3 className="text-[#1a1a1a] mb-4">Nuevo Sensei</h3>
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            <div>
-              <label className="block text-[#1a1a1a] mb-2">
-                Nombre completo
-              </label>
-              <input
-                type="text"
-                value={newSensei.name}
-                onChange={e =>
-                  setNewSensei({ ...newSensei, name: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[#1a1a1a] mb-2">DNI</label>
-              <input
-                type="text"
-                value={newSensei.dni}
-                onChange={e =>
-                  setNewSensei({ ...newSensei, dni: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[#1a1a1a] mb-2">Rango</label>
-              <select
-                value={newSensei.rank}
-                onChange={e =>
-                  setNewSensei({ ...newSensei, rank: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                required
-              >
-                <option value="">Seleccionar...</option>
-                <option value="1er Dan - Cinturón Negro">
-                  1er Dan - Cinturón Negro
-                </option>
-                <option value="2do Dan - Cinturón Negro">
-                  2do Dan - Cinturón Negro
-                </option>
-                <option value="3er Dan - Cinturón Negro">
-                  3er Dan - Cinturón Negro
-                </option>
-                <option value="4to Dan - Cinturón Negro">
-                  4to Dan - Cinturón Negro
-                </option>
-                <option value="5to Dan - Cinturón Negro">
-                  5to Dan - Cinturón Negro
-                </option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-[#1a1a1a] mb-2">Dojo</label>
-              <input
-                type="text"
-                value={newSensei.dojo}
-                onChange={e =>
-                  setNewSensei({ ...newSensei, dojo: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a]"
-                required
-              />
-            </div>
-            <div className="md:col-span-2 flex gap-3">
-              <button
-                type="submit"
-                className="bg-[#c41e3a] text-white px-6 py-2 rounded-lg hover:bg-[#a01830] transition-colors"
-              >
-                Guardar Sensei
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAddForm(false)}
-                className="bg-gray-300 text-[#1a1a1a] px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
+      {/* Lista senseis a cargo */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <table className="w-full">
           <thead className="bg-[#1a1a1a] text-white">
             <tr>
-              <th className="px-6 py-4 text-left">Nombre</th>
-              <th className="px-6 py-4 text-left">DNI</th>
+              <th className="px-6 py-4 text-left">Nombre y Apellido</th>
               <th className="px-6 py-4 text-left">Rango</th>
               <th className="px-6 py-4 text-left">Dojo</th>
-              <th className="px-6 py-4 text-left">Cargo</th>
-              <th className="px-6 py-4 text-left">Acción</th>
+              <th className="px-6 py-4 text-left">Detalle</th>
             </tr>
           </thead>
           <tbody>
-            {senseis.map(sensei => (
-              <tr
-                key={sensei.id}
-                className="border-b border-gray-200 hover:bg-[#f8f8f8]"
-              >
-                <td className="px-6 py-4 text-[#1a1a1a]">{sensei.name}</td>
-                <td className="px-6 py-4 text-gray-600">{sensei.dni}</td>
-                <td className="px-6 py-4 text-gray-600">{sensei.rank}</td>
-                <td className="px-6 py-4 text-gray-600">{sensei.dojo}</td>
-                <td className="px-6 py-4">
-                  {sensei.isInCharge ? (
-                    <span className="px-3 py-1 bg-[#c41e3a] text-white rounded-full">
-                      A cargo
-                    </span>
-                  ) : (
-                    <span className="text-gray-500">Asistente</span>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  {!sensei.isInCharge && (
-                    <button
-                      onClick={() => onDeleteSensei(sensei.id)}
-                      className="flex items-center gap-2 text-red-600 hover:text-red-800 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Dar de baja
-                    </button>
-                  )}
+            {senseis.map((sensei) => (
+              <tr key={sensei.id} className="border-b border-gray-200 hover:bg-[#f8f8f8]">
+                <td className="px-6 py-4 text-[#1a1a1a]">{sensei.full_name}</td>
+                <td className="px-6 py-4 text-gray-600">{sensei.dan_grade}</td>
+                <td className="px-6 py-4 text-gray-600">{sensei.dojo.name}</td>
+                <td className="px-6 py-4 flex gap-2">
+                  <button
+                    onClick={() => handleViewDetails(sensei)}
+                    className="w-full flex items-center justify-center gap-2 text-[#c41e3a] border border-[#c41e3a] py-2 rounded-lg hover:bg-[#c41e3a] hover:text-white transition-colors"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* POP-UP DETALLES DEL DOJO */}
+      {selectedDojo && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-11/12 md:w-2/3 p-6 relative max-h-[80vh] overflow-y-auto">
+            <button
+              onClick={() => setSelectedDojo(null)}
+              className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+            >
+              ✕
+            </button>
+            <h3 className="text-xl font-semibold mb-4">
+              Senseis en {selectedDojo.dojo.name}
+            </h3>
+            <p className="mb-4">
+              <strong>A Cargo:</strong> {selectedDojo.full_name} ({selectedDojo.dan_grade})
+            </p>
+
+            {selectedDojo.dojoSenseis.length > 0 ? (
+              <table className="w-full border">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2 text-left">Nombre</th>
+                    <th className="px-4 py-2 text-left">Rango</th>
+                    <th className="px-4 py-2 text-left">Registrado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedDojo.dojoSenseis.map((s) => (
+                    <tr key={s.id} className="border-t hover:bg-gray-50">
+                      <td className="px-4 py-2">{s.full_name}</td>
+                      <td className="px-4 py-2">{s.dan_grade}</td>
+                      <td className="px-4 py-2">{s.registered_at}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No hay otros senseis registrados en este dojo.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }

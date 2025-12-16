@@ -15,6 +15,7 @@ import { AdminSenseiList } from "./components/AdminSenseiList"
 import { AdminDojoList } from "./components/AdminDojoList"
 import AdminCreateDojo from "./components/AdminCreateDojo"
 import AdminSidebar from "./components/AdminSidebar"
+import { createDojo } from "./queries/dojoQueries";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -79,23 +80,6 @@ export default function App() {
       date: "2025-10-05",
       status: "Aprobado",
       observations: "Muy buen desempeño"
-    }
-  ])
-
-  const [dojos, setDojos] = useState([
-    {
-      id: "1",
-      name: "Sakura Karate Dojo",
-      senseiInCharge: "Takeshi Yamamoto",
-      totalSenseis: 3,
-      totalStudents: 45
-    },
-    {
-      id: "2",
-      name: "Dragon Rojo Dojo",
-      senseiInCharge: "Roberto Sánchez",
-      totalSenseis: 2,
-      totalStudents: 32
     }
   ])
 
@@ -244,27 +228,6 @@ export default function App() {
     setCurrentView("registrar-examen")
   }
 
-  const handleCreateDojo = dojoData => {
-    const newDojo = {
-      id: Date.now().toString(),
-      name: dojoData.name,
-      senseiInCharge: dojoData.senseiName,
-      totalSenseis: 1,
-      totalStudents: 0
-    }
-    setDojos([...dojos, newDojo])
-
-    const newSensei = {
-      id: Date.now().toString(),
-      name: dojoData.senseiName,
-      dni: dojoData.senseiDni,
-      rank: dojoData.senseiRank,
-      dojo: dojoData.name,
-      isInCharge: true
-    }
-    setSenseis([...senseis, newSensei])
-  }
-
   const handleAddSensei = senseiData => {
     const newSensei = {
       ...senseiData,
@@ -406,10 +369,10 @@ export default function App() {
         )}
         {userRole === "asociacion" && (
           <>
-            {currentView === "dojos" && <AdminDojoList dojos={dojos} />}
+            {currentView === "dojos" && <AdminDojoList />}
 
             {currentView === "crear-dojo" && (
-              <AdminCreateDojo onCreateDojo={handleCreateDojo} />
+              <AdminCreateDojo onCreateDojo={createDojo} />
             )}
 
             {currentView === "senseis" && (
