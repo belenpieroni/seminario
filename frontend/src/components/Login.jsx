@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Mail, Lock } from "lucide-react"
 import bgSensei from "../assets/bg-sensei.jpg"
 import bgAlumno from "../assets/bg-student.jpg"
 import bgAsociacion from "../assets/bg-asociacion.jpg"
@@ -7,12 +8,12 @@ export function Login({ onLogin }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("sensei")
+
   const backgrounds = {
     sensei: bgSensei,
     alumno: bgAlumno,
     asociacion: bgAsociacion
   }
-
 
   const handleSubmit = e => {
     e.preventDefault()
@@ -21,98 +22,140 @@ export function Login({ onLogin }) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center transition-all duration-500"
-      style={{
-        backgroundImage: `url(${backgrounds[role]})`
-      }}
+      className="min-h-screen flex items-center justify-center bg-cover bg-center transition-all duration-500"
+      style={{ backgroundImage: `url(${backgrounds[role]})` }}
     >
-      <div className="absolute inset-0 bg-black/20"></div>
-      <div className="relative w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-xl p-8 border-t-4 border-[#c41e3a]">
-          <div className="text-center mb-8">
-            <h1 className="text-[#1a1a1a] mb-2">Sistema de Gestión de Dojos</h1>
-            <p className="text-gray-600">
-              Acceso a la plataforma de gestión y certificación
+      <div className="absolute inset-0 bg-black/30" />
+
+      <div className="relative w-full max-w-md px-4">
+        <div className="backdrop-blur-md bg-white/80 shadow-2xl p-8">
+          
+          {/* TÍTULO */}
+          <div className="text-center mb-10">
+            <h1 className="text-2xl tracking-[0.3em] font-light text-[#1a1a1a]">
+              DOJO PORTAL
+            </h1>
+            <p className="mt-3 text-sm text-gray-500">
+              Plataforma de gestión y certificación
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-[#1a1a1a] mb-2">
-                Email
-              </label>
+
+            {/* EMAIL */}
+            <div className="relative">
+              <Mail className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
               <input
-                id="email"
                 type="email"
+                id="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a] focus:border-transparent"
-                placeholder="ejemplo@dojo.com"
+                placeholder=" "
                 required
+                className="
+                  peer w-full
+                  bg-transparent
+                  border-0 border-b-2 border-[#c41e3a]
+                  pl-8 pb-2 pt-4
+                  text-[#1a1a1a]
+                  focus:outline-none
+                  focus:border-[#a01830]
+                "
               />
-            </div>
 
-            <div>
-              <label htmlFor="password" className="block text-[#1a1a1a] mb-2">
-                Contraseña
+              <label
+                htmlFor="email"
+                className="
+                  absolute left-8
+                  text-gray-500 
+                  transition-all
+                  peer-placeholder-shown:top-4
+                  peer-placeholder-shown:text-sm
+                  peer-placeholder-shown:text-gray-500
+                  peer-focus:-top-1
+                  peer-focus:text-xs
+                  peer-focus:text-[#c41e3a]
+                  -top-1 text-xs
+                "
+              >
+                Email
               </label>
+            </div>
+            {/* PASSWORD */}
+            <div className="relative">
+              <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
               <input
-                id="password"
                 type="password"
+                id="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c41e3a] focus:border-transparent"
-                placeholder="••••••••"
+                placeholder=" "
                 required
+                className="
+                  peer w-full
+                  bg-transparent
+                  border-0 border-b-2 border-[#c41e3a]
+                  pl-8 pb-2 pt-4
+                  text-[#1a1a1a]
+                  focus:outline-none
+                  focus:border-[#a01830]
+                "
               />
-            </div>
 
-            <div>
-              <label className="block text-[#1a1a1a] mb-3">
-                Ingresar como:
+              <label
+                htmlFor="password"
+                className="
+                  absolute left-8
+                  text-gray-500 
+                  transition-all
+                  peer-placeholder-shown:top-4
+                  peer-placeholder-shown:text-sm
+                  peer-placeholder-shown:text-gray-500
+                  peer-focus:-top-1
+                  peer-focus:text-xs
+                  peer-focus:text-[#c41e3a]
+                  -top-1 text-xs
+                "
+              >
+                Contraseña
               </label>
-              <div className="flex flex-col gap-3">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="sensei"
-                    checked={role === "sensei"}
-                    onChange={e => setRole(e.target.value)}
-                    className="w-4 h-4 text-[#c41e3a] focus:ring-[#c41e3a]"
-                  />
-                  <span className="ml-2 text-[#1a1a1a]">Sensei</span>
-                </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="alumno"
-                    checked={role === "alumno"}
-                    onChange={e => setRole(e.target.value)}
-                    className="w-4 h-4 text-[#c41e3a] focus:ring-[#c41e3a]"
-                  />
-                  <span className="ml-2 text-[#1a1a1a]">Alumno</span>
-                </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="asociacion"
-                    checked={role === "asociacion"}
-                    onChange={e => setRole(e.target.value)}
-                    className="w-4 h-4 text-[#c41e3a] focus:ring-[#c41e3a]"
-                  />
-                  <span className="ml-2 text-[#1a1a1a]">Asociación</span>
-                </label>
-              </div>
             </div>
 
+            {/* OLVIDASTE CONTRASEÑA */}
+            <div className="text-right">
+              <button
+                type="button"
+                className="text-sm text-gray-500 hover:text-[#c41e3a] transition"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+
+            {/* ROLES */}
+            <div className="flex justify-between text-sm text-gray-700">
+              {["sensei", "alumno", "asociacion"].map(r => (
+                <label key={r} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value={r}
+                    checked={role === r}
+                    onChange={e => setRole(e.target.value)}
+                    className="accent-[#c41e3a]"
+                  />
+                  <span className="capitalize">{r}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* BOTÓN */}
             <button
               type="submit"
-              className="w-full bg-[#c41e3a] text-white py-3 rounded-lg hover:bg-[#a01830] transition-colors"
+              className="w-full mt-4 bg-[#c41e3a] text-white py-3 hover:bg-[#a01830] transition tracking-widest text-sm"
             >
-              Ingresar
+              INGRESAR
             </button>
           </form>
         </div>
