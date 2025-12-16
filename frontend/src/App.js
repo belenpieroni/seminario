@@ -10,7 +10,7 @@ import { StudentSidebar } from "./components/StudentSidebar"
 import { StudentDashboard } from "./components/StudentDashboard"
 import { StudentCertificates } from "./components/StudentCertificates"
 import { StudentProfile } from "./components/StudentProfile"
-//import { VerifyCertificate } from "./components/VerifyCertificate"
+import { VerifyCertificate } from "./components/VerifyCertificate"
 import { AdminSenseiList } from "./components/AdminSenseiList"
 import { AdminDojoList } from "./components/AdminDojoList"
 import AdminCreateDojo from "./components/AdminCreateDojo"
@@ -278,9 +278,9 @@ export default function App() {
     setSenseis(senseis.filter(s => s.id !== senseiId))
   }
 
-  // if (showPublicVerification) {
-  //   return <VerifyCertificate />
-  // }
+  if (showPublicVerification) {
+    return <VerifyCertificate onBack={() => setShowPublicVerification(false)} />
+  }
 
   if (!isLoggedIn) {
     return (
