@@ -11,10 +11,10 @@ import { StudentDashboard } from "./components/StudentDashboard"
 import { StudentCertificates } from "./components/StudentCertificates"
 import { StudentProfile } from "./components/StudentProfile"
 //import { VerifyCertificate } from "./components/VerifyCertificate"
-// import { AdminSidebar } from "./components/AdminSidebar"
-// import { AdminDojoList } from "./components/AdminDojoList"
-// import { AdminCreateDojo } from "./components/AdminCreateDojo"
-// import { AdminSenseiList } from "./components/AdminSenseiList"
+import { AdminSenseiList } from "./components/AdminSenseiList"
+import { AdminDojoList } from "./components/AdminDojoList"
+import AdminCreateDojo from "./components/AdminCreateDojo"
+import AdminSidebar from "./components/AdminSidebar"
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -315,14 +315,14 @@ export default function App() {
             ? "Sensei"
             : userRole === "alumno"
             ? "Alumno"
-            : "Administrador"
+            : "Asociación"
         }
         userName={
           userRole === "sensei"
             ? senseiData.name
             : userRole === "alumno"
             ? currentStudentData.name
-            : "Admin"
+            : "Asociacion"
         }
         userRank={userRole === "sensei" ? senseiData.rank : undefined}
       />
@@ -341,12 +341,7 @@ export default function App() {
             onLogout={handleLogout}
           />
         ) : (
-          // <AdminSidebar
-          //   currentView={currentView}
-          //   onNavigate={setCurrentView}
-          //   onLogout={handleLogout}
-          // />
-          <SenseiSidebar
+          <AdminSidebar
             currentView={currentView}
             onNavigate={setCurrentView}
             onLogout={handleLogout}
@@ -409,17 +404,23 @@ export default function App() {
             )}
           </>
         )}
-
-        {/*
-        === VISTA ADMIN (NO IMPLEMENTADA AÚN) ===
-        {userRole === "admin" && (
+        {userRole === "asociacion" && (
           <>
-            <AdminDojoList />
-            <AdminCreateDojo />
-            <AdminSenseiList />
+            {currentView === "dojos" && <AdminDojoList dojos={dojos} />}
+
+            {currentView === "crear-dojo" && (
+              <AdminCreateDojo onCreateDojo={handleCreateDojo} />
+            )}
+
+            {currentView === "senseis" && (
+              <AdminSenseiList
+                senseis={senseis}
+                onAddSensei={handleAddSensei}
+                onDeleteSensei={handleDeleteSensei}
+              />
+            )}
           </>
         )}
-        */}
       </main>
 
       </div>
