@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
 import { Building2, Edit2 } from "lucide-react"
 import { getDojos } from "../queries/dojoQueries"
+import DojoManageModal from "./DojoManageModal"
 
 export function AdminDojoList({ onEditDojo = () => {} }) {
   const [dojos, setDojos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedDojoId, setSelectedDojoId] = useState(null);
+  const [updateDojo, deleteDojo] = useState(null);
 
   useEffect(() => {
     async function fetchDojos() {
@@ -66,13 +69,20 @@ export function AdminDojoList({ onEditDojo = () => {} }) {
               </div>
             </div>
 
-            <button
-              onClick={() => onEditDojo(dojo.id)}
-              className="w-full flex items-center justify-center gap-2 text-[#c41e3a] border border-[#c41e3a] py-2 rounded-lg hover:bg-[#c41e3a] hover:text-white transition-colors"
-            >
+            <button className="w-full flex items-center justify-center gap-2 text-[#c41e3a] border border-[#c41e3a] py-2 rounded-lg hover:bg-[#c41e3a] hover:text-white transition-colors"
+             onClick={() => setSelectedDojoId(dojo.id)}>
               <Edit2 className="w-4 h-4" />
               Gestionar
-            </button>
+              </button>
+
+            {selectedDojoId && (
+              <DojoManageModal
+                dojoId={selectedDojoId}
+                onClose={() => setSelectedDojoId(null)}
+                onSave={updateDojo}
+                onDelete={deleteDojo}
+              />
+            )}
           </div>
         ))}
       </div>

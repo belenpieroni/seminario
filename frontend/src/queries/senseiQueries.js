@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 // Traer solo los senseis a cargo con dojo relacionado
 export async function getHeadSenseis() {
   const { data, error } = await supabase
-    .from('sensei')
+    .from("sensei")
     .select(`
       id,
       full_name,
@@ -13,17 +13,19 @@ export async function getHeadSenseis() {
       registered_at,
       dojo:dojo_id (
         id,
-        name
+        name,
+        is_active
       )
     `)
-    .eq('is_head', true)  // solo los a cargo
-    .order('full_name', { ascending: true });
+    .eq("is_head", true)
+    .eq("dojo.is_active", true)
+    .order("full_name", { ascending: true });
 
   if (error) {
-    console.error('Error al traer senseis a cargo:', error);
+    console.error("Error al traer senseis a cargo:", error);
     return [];
   }
-  console.log('Senseis fetch:', data);
+
   return data;
 }
 
