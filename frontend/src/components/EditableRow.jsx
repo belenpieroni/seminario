@@ -1,37 +1,42 @@
-import { Edit2, Check } from "lucide-react";
-import { useState } from "react";
+import { Edit2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export function EditableRow({ label, value, onSave }) {
   const [editing, setEditing] = useState(false);
   const [temp, setTemp] = useState(value);
 
-  function handleSave() {
-    onSave(temp);
-    setEditing(false);
-  }
+  useEffect(() => setTemp(value), [value]);
 
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-gray-600 w-40">{label}</span>
+    <div className="flex justify-between items-center bg-gray-50 p-3">
+      <div>
+        <p className="text-gray-600">{label}</p>
 
-      {!editing ? (
-        <div className="flex items-center gap-2">
-          <span className="text-[#1a1a1a]">{value || "-"}</span>
-          <button onClick={() => setEditing(true)}>
-            <Edit2 className="w-4 h-4 text-gray-500 hover:text-[#c41e3a]" />
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2">
+        {editing ? (
           <input
             value={temp}
             onChange={e => setTemp(e.target.value)}
-            className="border px-3 py-1 w-64"
+            className="border p-1"
           />
-          <button onClick={handleSave}>
-            <Check className="w-4 h-4 text-green-600" />
-          </button>
-        </div>
+        ) : (
+          <p>{value}</p>
+        )}
+      </div>
+
+      {editing ? (
+        <button
+          onClick={() => {
+            onSave(temp);
+            setEditing(false);
+          }}
+          className="text-green-600"
+        >
+          Guardar
+        </button>
+      ) : (
+        <button onClick={() => setEditing(true)}>
+          <Edit2 className="w-4 h-4 text-gray-500" />
+        </button>
       )}
     </div>
   );

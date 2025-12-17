@@ -45,3 +45,24 @@ export async function getSenseisByDojo(dojo_id) {
   
   return data;
 }
+
+export async function getSenseiById(id) {
+  const { data } = await supabase
+    .from("sensei")
+    .select("*")
+    .eq("id", id)
+    .single();
+  return data;
+}
+
+export async function updateSensei(id, updates) {
+  const { data, error } = await supabase
+    .from("sensei")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}

@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { X, Pencil, Check } from "lucide-react";
-import { getDojoById, updateDojoField, deleteDojo } from "../queries/dojoQueries";
+import { X } from "lucide-react";
+import { EditableRow } from "./EditableRow";
+import {
+  getDojoById,
+  updateDojoField,
+  deleteDojo,
+} from "../queries/dojoQueries";
 
 export default function DojoManageModal({ dojoId, onClose }) {
   const [dojo, setDojo] = useState(null);
-  const [editingField, setEditingField] = useState(null);
-  const [tempValue, setTempValue] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -24,11 +27,8 @@ export default function DojoManageModal({ dojoId, onClose }) {
     );
   }
 
-  const updateField = async (field, value) => {
-    if (value === dojo[field]) {
-      setEditingField(null);
-      return;
-    }
+  async function updateField(field, value) {
+    if (value === dojo[field]) return;
 
     try {
       setSaving(true);
@@ -37,18 +37,16 @@ export default function DojoManageModal({ dojoId, onClose }) {
 
       setDojo(prev => ({
         ...prev,
-        [field]: value
+        [field]: value,
       }));
-
-      setEditingField(null);
     } catch (err) {
       alert("Error al guardar cambios");
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  const handleDelete = async () => {
+  async function handleDelete() {
     const confirmDelete = window.confirm(
       "¿Estás seguro de eliminar este dojo? Esta acción no se puede deshacer."
     );
@@ -61,58 +59,7 @@ export default function DojoManageModal({ dojoId, onClose }) {
     } catch (err) {
       alert("No se pudo eliminar el dojo");
     }
-  };
-
-  const EditableRow = ({ label, field }) => {
-    const isEditing = editingField === field;
-
-    return (
-      <div className="flex items-center justify-between bg-gray-50 p-4">
-        <div className="flex-1">
-          <p className="text-gray-600">{label}</p>
-
-          {!isEditing ? (
-            <p className="text-[#1a1a1a]">{dojo[field] || "-"}</p>
-          ) : (
-            <input
-              className="mt-1 w-full px-2 py-1 border border-gray-300"
-              value={tempValue}
-              onChange={e => setTempValue(e.target.value)}
-              autoFocus
-            />
-          )}
-        </div>
-
-        {!isEditing ? (
-          <button
-            onClick={() => {
-              setEditingField(field);
-              setTempValue(dojo[field] || "");
-            }}
-            className="text-gray-500 hover:text-[#c41e3a]"
-          >
-            <Pencil size={18} />
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              disabled={saving}
-              onClick={() => updateField(field, tempValue)}
-              className="text-green-600"
-            >
-              <Check size={18} />
-            </button>
-            <button
-              onClick={() => setEditingField(null)}
-              className="text-gray-400"
-            >
-              <X size={18} />
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -132,21 +79,51 @@ export default function DojoManageModal({ dojoId, onClose }) {
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Info editable */}
+          {/* Editable info */}
           <div>
-            <h4 className="text-[#1a1a1a] mb-3">Información del Dojo</h4>
+            <h4 className="text-[#1a1a1a] mb-3">
+              Información del Dojo
+            </h4>
+
             <div className="space-y-2">
-              <EditableRow label="Nombre" field="name" />
-              <EditableRow label="Dirección" field="address" />
-              <EditableRow label="Localidad" field="city" />
-              <EditableRow label="Provincia" field="province" />
-              <EditableRow label="Teléfono" field="phone" />
+              <EditableRow
+                label="Nombre"
+                value={dojo.name}
+                onSave={v => updateField("name", v)}
+              />
+
+              <EditableRow
+                label="Dirección"
+                value={dojo.address || "-"}
+                onSave={v => updateField("address", v)}
+              />
+
+              <EditableRow
+                label="Localidad"
+                value={dojo.city || "-"}
+                onSave={v => updateField("city", v)}
+              />
+
+              <EditableRow
+                label="Provincia"
+                value={dojo.province || "-"}
+                onSave={v => updateField("province", v)}
+              />
+
+              <EditableRow
+                label="Teléfono"
+                value={dojo.phone || "-"}
+                onSave={v => updateField("phone", v)}
+              />
             </div>
           </div>
 
-          {/* Info fija */}
+          {/* Fixed info */}
           <div>
-            <h4 className="text-[#1a1a1a] mb-3">Datos generales</h4>
+            <h4 className="text-[#1a1a1a] mb-3">
+              Datos generales
+            </h4>
+
             <div className="bg-gray-50 p-4 space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Sensei a cargo</span>
@@ -175,6 +152,7 @@ export default function DojoManageModal({ dojoId, onClose }) {
           <button
             onClick={handleDelete}
             className="px-6 py-3 bg-red-600 text-white hover:bg-red-700 transition-colors"
+            disabled={saving}
           >
             Eliminar dojo
           </button>
