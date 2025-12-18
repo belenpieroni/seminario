@@ -1,3 +1,4 @@
+import { supabase } from "../supabaseClient";
 import { useState } from "react";
 import { CheckCircle, X } from "lucide-react";
 
@@ -23,12 +24,7 @@ const LOCALIDADES_POR_PROVINCIA = {
     "Villa María",
     "Alta Gracia",
   ],
-  "Santa Fe": [
-    "Rosario",
-    "Santa Fe Capital",
-    "Rafaela",
-    "Venado Tuerto",
-  ],
+  "Santa Fe": ["Rosario", "Santa Fe Capital", "Rafaela", "Venado Tuerto"],
 };
 
 const PROVINCIAS = Object.keys(LOCALIDADES_POR_PROVINCIA);
@@ -54,13 +50,13 @@ export default function AdminCreateDojo({ onCreateDojo }) {
   const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
   const [showLocalityDropdown, setShowLocalityDropdown] = useState(false);
 
-  const filteredProvinces = PROVINCIAS.filter(p =>
+  const filteredProvinces = PROVINCIAS.filter((p) =>
     p.toLowerCase().includes(provinceFilter.toLowerCase())
   );
 
   const filteredLocalities =
     dojoData.province && LOCALIDADES_POR_PROVINCIA[dojoData.province]
-      ? LOCALIDADES_POR_PROVINCIA[dojoData.province].filter(l =>
+      ? LOCALIDADES_POR_PROVINCIA[dojoData.province].filter((l) =>
           l.toLowerCase().includes(localityFilter.toLowerCase())
         )
       : [];
@@ -70,10 +66,10 @@ export default function AdminCreateDojo({ onCreateDojo }) {
     const first = parts[0] || "";
     const last = parts[parts.length - 1] || "";
     const dojoSlug = dojoName.toLowerCase().replace(/\s+/g, "");
-    return `${first}${last}@acargo.${dojoSlug}.com`;
+    return `${first}${last}@${dojoSlug}.com`;
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const email = generateEmail(dojoData.senseiName, dojoData.name);
@@ -84,16 +80,25 @@ export default function AdminCreateDojo({ onCreateDojo }) {
         name: dojoData.name.trim(),
         address: dojoData.address.trim(),
         province: dojoData.province,
-        locality: dojoData.locality,
+        city: dojoData.locality,
         phone: `+54${dojoData.phone}`,
       },
       sensei: {
         full_name: dojoData.senseiName.trim(),
         rank: dojoData.senseiRank,
       },
+      email, 
     };
 
-    await onCreateDojo(payload);
+    const { data, error } = await supabase.functions.invoke("create-head-sensei", {
+      body: payload,
+    });
+
+    if (error) {
+      console.error("Error invocando función:", error);
+    } else {
+      console.log("Respuesta función:", data);
+    }
 
     setShowConfirm(false);
     setShowSuccess(true);
@@ -323,7 +328,7 @@ export default function AdminCreateDojo({ onCreateDojo }) {
                 <strong>
                   {dojoData.senseiName && dojoData.name
                     ? generateEmail(dojoData.senseiName, dojoData.name)
-                    : "nombreapellido@acargo.nombredojo.com"}
+                    : "nombreapellido@nombredojo.com"}
                 </strong>
               </div>
 

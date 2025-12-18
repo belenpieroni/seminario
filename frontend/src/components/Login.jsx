@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Mail, Lock } from "lucide-react"
+import { supabase } from "../supabaseClient"
 import bgSensei from "../assets/bg-sensei.jpg"
 import bgAlumno from "../assets/bg-student.jpg"
 import bgAsociacion from "../assets/bg-asociacion.jpg"
