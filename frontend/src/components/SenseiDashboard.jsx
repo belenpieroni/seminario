@@ -1,6 +1,58 @@
+import { useEffect, useState } from "react"
+import { supabase } from "../supabaseClient"
 import { Users, ClipboardCheck, Calendar } from "lucide-react"
 
-export function SenseiDashboard({ students, exams }) {
+export function SenseiDashboard() {
+  const [students, setStudents] = useState([])
+  const [exams, setExams] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+
+      // 1. Obtener usuario logueado
+      const { data: userData } = await supabase.auth.getUser()
+      const user = userData?.user
+      if (!user) {
+        setLoading(false)
+        return
+      }
+
+      // 2. Buscar el sensei asociado a ese user_id
+      const { data: senseiRow } = await supabase
+        .from("sensei")
+        .select("id, dojo_id")
+        .eq("user_id", user.id)
+        .single()
+
+      if (!senseiRow) {
+        setLoading(false)
+        return
+      }
+
+      // 3. Traer alumnos del dojo
+      const { data: studentsData } = await supabase
+        .from("student")
+        .select("*")
+        .eq("dojo_id", senseiRow.dojo_id)
+
+      setStudents(studentsData || [])
+
+      // 4. Traer exámenes del dojo
+      const { data: examsData } = await supabase
+        .from("exam")
+        .select("*")
+        .eq("dojo_id", senseiRow.dojo_id)
+
+      setExams(examsData || [])
+
+      setLoading(false)
+    }
+
+    fetchData()
+  }, [])
+
   const totalStudents = students.length
   const totalExams = exams.length
   const lastExam = exams.length > 0 ? exams[exams.length - 1] : null
@@ -9,6 +61,10 @@ export function SenseiDashboard({ students, exams }) {
     { date: "2025-12-20", student: "Carlos Méndez", belt: "Cinturón Verde" },
     { date: "2025-12-22", student: "Ana Torres", belt: "Cinturón Azul" }
   ]
+
+  if (loading) {
+    return <p className="p-8">Cargando datos...</p>
+  }
 
   return (
     <div className="p-8">
