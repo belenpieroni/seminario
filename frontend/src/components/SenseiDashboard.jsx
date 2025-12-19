@@ -38,6 +38,7 @@ export function SenseiDashboard() {
         .from("student")
         .select("*", { count: "exact", head: true })
         .eq("dojo_id", dojoId)
+        .eq("is_active", true)
 
       const { count: senseisCount } = await supabase
         .from("sensei")

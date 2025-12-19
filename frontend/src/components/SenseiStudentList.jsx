@@ -5,7 +5,7 @@ import { StudentManageModal } from "./StudentManageModal";
 
 export function SenseiStudentList() {
   const [students, setStudents] = useState([])
-  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -103,6 +103,16 @@ export function SenseiStudentList() {
     });
   }
 
+  function handleUpdatedStudent(updatedStudent) {
+    setStudents(prevStudents =>
+      prevStudents.map(student =>
+        student.id === updatedStudent.id
+          ? { ...student, ...updatedStudent }
+          : student
+      )
+    );
+  }
+
   useEffect(() => {
     async function fetchStudents() {
       setLoading(true)
@@ -139,6 +149,7 @@ export function SenseiStudentList() {
         .from("student")
         .select("id, full_name, birth_date, current_belt, registered_at")
         .eq("dojo_id", sensei.dojo_id)
+        .eq("is_active", true);
 
       setStudents(studentsData || [])
       setLoading(false)
@@ -473,7 +484,7 @@ export function SenseiStudentList() {
                           onClick={() => setSelectedStudent(student)}
                           className="text-[#c41e3a] border border-[#c41e3a] px-4 py-2 rounded hover:bg-[#c41e3a] hover:text-white flex items-center gap-2"
                         >
-                          <Eye className="w-4 h-4" /> Ver
+                          <Eye className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
@@ -486,11 +497,12 @@ export function SenseiStudentList() {
           {/* Modal de detalle */}
           {selectedStudent && (
             <StudentManageModal
-              student={selectedStudent}
+              studentId={selectedStudent.id}
+              dojoId={dojo.id}
               onClose={() => setSelectedStudent(null)}
+              onSave={handleUpdatedStudent}
             />
           )}
-
             {/* Modal de confirmación */}
             {showConfirm && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -538,7 +550,7 @@ export function SenseiStudentList() {
                       </div>
                     </div>
                   </div>
-
+                  
                   {/* Botones */}
                   <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
                     <button
@@ -555,8 +567,8 @@ export function SenseiStudentList() {
                     </button>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>    
+          )}
     </div>
   )
 }
