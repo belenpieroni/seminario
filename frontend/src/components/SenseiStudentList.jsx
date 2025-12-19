@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react"
-import { Eye, Plus, X } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Plus, Eye, Trash, X } from "lucide-react";
 import { supabase } from "../supabaseClient"
+import { StudentManageModal } from "./StudentManageModal";
 
 export function SenseiStudentList() {
   const [students, setStudents] = useState([])
@@ -9,20 +10,12 @@ export function SenseiStudentList() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [dojo, setDojo] = useState(null)   
+  const [showFilters, setShowFilters] = useState(false)
   const [newStudent, setNewStudent] = useState({
     full_name: "",
     birth_date: "",
     current_belt: ""
   })
-
-  const generatedEmail = (studentName, dojoName) => {
-    const parts = studentName.toLowerCase().trim().split(" ")
-    const first = parts[0] || ""
-    const last = parts[parts.length - 1] || ""
-    const dojoSlug = dojoName.toLowerCase().replace(/\s+/g, "")
-    return `${first}${last}@${dojoSlug}.com`
-  }
-
   const belts = [
     "Blanco",
     "Amarillo",
@@ -32,6 +25,83 @@ export function SenseiStudentList() {
     "Marrón",
     "Negro"
   ]
+  const [filters, setFilters] = useState({
+    name: "",
+    age: "",
+    ageCondition: "exact", // exact | menor | mayor
+    belt: "",
+    beltCondition: "exact", // exact | menor | mayor
+    examDate: "",
+    examStart: "",
+    examEnd: "",
+  });
+  const filteredStudents = useMemo(
+    () => applyFilters(students, filters),
+    [students, filters]
+  );
+
+  const generatedEmail = (studentName, dojoName) => {
+    const parts = studentName.toLowerCase().trim().split(" ")
+    const first = parts[0] || ""
+    const last = parts[parts.length - 1] || ""
+    const dojoSlug = dojoName.toLowerCase().replace(/\s+/g, "")
+    return `${first}${last}@${dojoSlug}.com`
+  }
+
+  function applyFilters(students, filters) {
+    return students.filter(student => {
+      // Nombre / Apellido
+      if (filters.name) {
+        const fullName = student.full_name.toLowerCase();
+        if (!fullName.includes(filters.name.toLowerCase())) return false;
+      }
+
+      // Edad
+      if (filters.age) {
+        const age = student.birth_date
+          ? Math.floor(
+              (Date.now() - new Date(student.birth_date).getTime()) /
+                (1000 * 60 * 60 * 24 * 365.25)
+            )
+          : null;
+
+        if (age !== null) {
+          if (filters.ageCondition === "exact" && age !== Number(filters.age)) return false;
+          if (filters.ageCondition === "menor" && age >= Number(filters.age)) return false;
+          if (filters.ageCondition === "mayor" && age <= Number(filters.age)) return false;
+        }
+      }
+
+      // Cinturón
+      if (filters.belt) {
+        const beltIndex = belts.indexOf(student.current_belt);
+        const filterIndex = belts.indexOf(filters.belt);
+
+        if (filters.beltCondition === "exact" && beltIndex !== filterIndex) return false;
+        if (filters.beltCondition === "menor" && beltIndex >= filterIndex) return false;
+        if (filters.beltCondition === "mayor" && beltIndex <= filterIndex) return false;
+      }
+
+      // Último examen
+      if (filters.examDate) {
+        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null;
+        if (!examDate || examDate.toISOString().split("T")[0] !== filters.examDate) return false;
+      }
+
+      if (filters.examStart && filters.examEnd) {
+        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null;
+        if (
+          !examDate ||
+          examDate < new Date(filters.examStart) ||
+          examDate > new Date(filters.examEnd)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
 
   useEffect(() => {
     async function fetchStudents() {
@@ -199,10 +269,11 @@ export function SenseiStudentList() {
             </div>
             )}
 
-            {/* Botón agregar alumno */}
+            
             <div className="flex items-center justify-between mb-8">
               {!showAddForm && (
                 <div className="mt-6">
+                  {/* Botón agregar alumno */}
                   <button
                     onClick={() => setShowAddForm(true)}
                     className="flex items-center gap-2 bg-[#c41e3a] text-white px-4 py-2 rounded hover:bg-[#a01830]"
@@ -211,57 +282,214 @@ export function SenseiStudentList() {
                   </button>
                 </div>
               )}
+              {/* Botón para abrir/cerrar filtros */}
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="px-4 py-2 bg-[#c41e3a] text-white rounded-lg hover:bg-[#a01830]"
+                >
+                  Filtros
+                </button>
+              </div>
             </div>
 
-            {/* Tabla de alumnos */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-[#1a1a1a] text-white">
+            {/* Aside de filtros */}
+            {showFilters && (
+              <aside className="fixed right-0 top-0 h-full w-80 bg-white shadow-lg p-6 overflow-y-auto z-50">
+                {/* Header con título y cruz */}
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold">Filtros</h2>
+                  <button
+                    onClick={() => setShowFilters(false)}
+                    className="text-gray-500 hover:text-red-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Filtrar por nombre y apellido */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">Filtrar por nombre y apellido</h3>
+                    <button
+                      onClick={() => setFilters({ ...filters, name: "" })}
+                      className="text-gray-500 hover:text-red-600"
+                    >
+                      <Trash className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border rounded-lg"
+                    placeholder="Ingresar nombre o apellido"
+                    value={filters.name}
+                    onChange={e => setFilters({ ...filters, name: e.target.value })}
+                  />
+                </div>
+
+                {/* Filtrar por edad */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">Filtrar por edad</h3>
+                    <button
+                      onClick={() => setFilters({ ...filters, age: "", ageCondition: "exact" })}
+                      className="text-gray-500 hover:text-red-600"
+                    >
+                      <Trash className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <select
+                      className="px-3 py-2 border rounded-lg"
+                      value={filters.ageCondition}
+                      onChange={e => setFilters({ ...filters, ageCondition: e.target.value })}
+                    >
+                      <option value="exact">Exactamente</option>
+                      <option value="menor">Menor que</option>
+                      <option value="mayor">Mayor que</option>
+                    </select>
+                    <input
+                      type="number"
+                      className="w-full px-3 py-2 border rounded-lg"
+                      placeholder="Edad"
+                      value={filters.age}
+                      onChange={e => setFilters({ ...filters, age: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Filtrar por cinturón */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">Filtrar por cinturón</h3>
+                    <button
+                      onClick={() => setFilters({ ...filters, belt: "", beltCondition: "exact" })}
+                      className="text-gray-500 hover:text-red-600"
+                    >
+                      <Trash className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <select
+                      className="px-3 py-2 border rounded-lg"
+                      value={filters.beltCondition}
+                      onChange={e => setFilters({ ...filters, beltCondition: e.target.value })}
+                    >
+                      <option value="exact">Exactamente</option>
+                      <option value="menor">Menor que</option>
+                      <option value="mayor">Mayor que</option>
+                    </select>
+                    <select
+                      className="w-full px-3 py-2 border rounded-lg"
+                      value={filters.belt}
+                      onChange={e => setFilters({ ...filters, belt: e.target.value })}
+                    >
+                      <option value="">Seleccionar cinturón</option>
+                      {belts.map(belt => (
+                        <option key={belt} value={belt}>{belt}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Filtrar por fecha de último examen */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">Filtrar por fecha de último examen</h3>
+                    <button
+                      onClick={() =>
+                        setFilters({ ...filters, examDate: "", examStart: "", examEnd: "" })
+                      }
+                      className="text-gray-500 hover:text-red-600"
+                    >
+                      <Trash className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border rounded-lg"
+                      value={filters.examDate}
+                      onChange={e => setFilters({ ...filters, examDate: e.target.value })}
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="date"
+                        className="w-full px-3 py-2 border rounded-lg"
+                        value={filters.examStart}
+                        onChange={e => setFilters({ ...filters, examStart: e.target.value })}
+                      />
+                      <input
+                        type="date"
+                        className="w-full px-3 py-2 border rounded-lg"
+                        value={filters.examEnd}
+                        onChange={e => setFilters({ ...filters, examEnd: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            )}
+
+          {/* Tabla de alumnos */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-[#1a1a1a] text-white">
+                <tr>
+                  <th className="px-6 py-4 text-left">Nombre y Apellido</th>
+                  <th className="px-6 py-4 text-left">Edad</th>
+                  <th className="px-6 py-4 text-left">Cinturón</th>
+                  <th className="px-6 py-4 text-left">Último examen</th>
+                  <th className="px-6 py-4 text-left">Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.length === 0 ? (
                   <tr>
-                    <th className="px-6 py-4 text-left">Nombre</th>
-                    <th className="px-6 py-4 text-left">Edad</th>
-                    <th className="px-6 py-4 text-left">Cinturón</th>
-                    <th className="px-6 py-4 text-left">Registrado</th>
-                    <th className="px-6 py-4 text-left">Detalle</th>
+                    <td colSpan={5} className="px-6 py-4 text-gray-500 text-center">
+                      No hay alumnos registrados
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {students.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-4 text-gray-500 text-center">
-                        No hay alumnos registrados
+                ) : (
+                  filteredStudents.map(student => (
+                    <tr key={student.id} className="border-b hover:bg-gray-50">
+                      <td className="px-6 py-4">{student.full_name}</td>
+                      <td className="px-6 py-4">
+                        {student.birth_date
+                          ? Math.floor(
+                              (Date.now() - new Date(student.birth_date).getTime()) /
+                                (1000 * 60 * 60 * 24 * 365.25)
+                            )
+                          : "-"}
+                      </td>
+                      <td className="px-6 py-4">{student.current_belt}</td>
+                      <td className="px-6 py-4">
+                        {student.last_exam_date
+                          ? new Date(student.last_exam_date).toLocaleDateString("es-AR")
+                          : "-"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => setSelectedStudent(student)}
+                          className="text-[#c41e3a] border border-[#c41e3a] px-4 py-2 rounded hover:bg-[#c41e3a] hover:text-white flex items-center gap-2"
+                        >
+                          <Eye className="w-4 h-4" /> Ver
+                        </button>
                       </td>
                     </tr>
-                  ) : (
-                    students.map(student => (
-                      <tr key={student.id} className="border-b hover:bg-gray-50">
-                        <td className="px-6 py-4">{student.full_name}</td>
-                        <td className="px-6 py-4">
-                          {student.birth_date
-                            ? Math.floor(
-                                (Date.now() - new Date(student.birth_date).getTime()) /
-                                  (1000 * 60 * 60 * 24 * 365.25)
-                              )
-                            : "-"}
-                        </td>
-                        <td className="px-6 py-4">{student.current_belt}</td>
-                        <td className="px-6 py-4">
-                          {new Date(student.registered_at).toLocaleDateString("es-AR")}
-                        </td>
-                        <td className="px-6 py-4">
-                          <button
-                            onClick={() => setSelectedStudent(student)}
-                            className="text-[#c41e3a] border border-[#c41e3a] px-4 py-2 rounded hover:bg-[#c41e3a] hover:text-white flex items-center gap-2"
-                          >
-                            <Eye className="w-4 h-4" /> Ver
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Modal de detalle */}
+          {selectedStudent && (
+            <StudentManageModal
+              student={selectedStudent}
+              onClose={() => setSelectedStudent(null)}
+            />
+          )}
 
             {/* Modal de confirmación */}
             {showConfirm && (
