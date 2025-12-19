@@ -1,17 +1,16 @@
-import {
-  LayoutDashboard,
-  Users,
-  ClipboardList,
-  Award,
-  LogOut
-} from "lucide-react"
+import { LayoutDashboard, Users, ClipboardList, Award, LogOut } from "lucide-react"
+import { useNavigate, useLocation } from "react-router-dom"
 
-export function SenseiSidebar({ currentView, onNavigate, onLogout }) {
+export function SenseiSidebar({ onLogout }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "alumnos", label: "Alumnos", icon: Users },
-    { id: "registrar-examen", label: "Registrar examen", icon: ClipboardList },
-    { id: "certificados", label: "Certificados", icon: Award }
+    { path: "/sensei/dashboard", label: "Mi dojo", icon: LayoutDashboard },
+    { path: "/sensei/alumnos", label: "Alumnos", icon: Users },
+    { path: "/sensei/senseis", label: "Senseis", icon: Users },
+    { path: "/sensei/exams", label: "Registrar exámen", icon: ClipboardList },
+    { path: "/sensei/certificados", label: "Certificados", icon: Award }
   ]
 
   return (
@@ -19,12 +18,14 @@ export function SenseiSidebar({ currentView, onNavigate, onLogout }) {
       <nav className="space-y-2">
         {menuItems.map(item => {
           const Icon = item.icon
+          const active = location.pathname === item.path
+
           return (
             <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
+              key={item.path}
+              onClick={() => navigate(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                currentView === item.id
+                active
                   ? "bg-[#c41e3a] text-white"
                   : "text-gray-300 hover:bg-gray-800"
               }`}
