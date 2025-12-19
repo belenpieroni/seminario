@@ -2,41 +2,60 @@
 import { supabase } from '../supabaseClient';
 
 export async function getDojos() {
-  const { data, error } = await supabase
-    .from('dojo')
-    .select(`
-      id,
-      name,
-      head_sensei_id,
-      sensei:head_sensei_id(full_name)
-    `)
+  // 1️⃣ Traer los dojos activos
+  const { data: dojos, error } = await supabase
+    .from("dojo")
+    .select("id, name, head_sensei_id")
     .eq("is_active", true);
 
   if (error) {
-    console.error('Error al obtener los dojos:', error);
+    console.error("Error al obtener los dojos:", error);
     return [];
   }
 
-  return data.map(dojo => ({
-    ...dojo,
-    senseiInCharge: dojo.sensei ? dojo.sensei.full_name : 'Sin asignar',
-    totalStudents: dojo.total_students ? dojo.total_students.length : 0,
-    totalSenseis: dojo.total_senseis ? dojo.total_senseis.length : 0
-  }));
+  const enriched = await Promise.all(
+    dojos.map(async (dojo) => {
+      // Sensei a cargo
+      let senseiInCharge = "Sin asignar";
+      if (dojo.head_sensei_id) {
+        const { data: head } = await supabase
+          .from("sensei")
+          .select("full_name")
+          .eq("id", dojo.head_sensei_id)
+          .single();
+        if (head) senseiInCharge = head.full_name;
+      }
+
+      // Total alumnos activos
+      const { count: studentsCount } = await supabase
+        .from("student")
+        .select("*", { count: "exact", head: true })
+        .eq("dojo_id", dojo.id)
+        .eq("is_active", true);
+
+      // Total senseis
+      const { count: senseisCount } = await supabase
+        .from("sensei")
+        .select("*", { count: "exact", head: true })
+        .eq("dojo_id", dojo.id)
+        .eq("is_active", true);
+
+      return {
+        ...dojo,
+        senseiInCharge,
+        totalStudents: studentsCount || 0,
+        totalSenseis: senseisCount || 0,
+      };
+    })
+  );
+
+  return enriched;
 }
 
 export async function getDojoById(dojoId) {
   const { data, error } = await supabase
     .from("dojo")
-    .select(`
-      id,
-      name,
-      address,
-      city,
-      province,
-      phone,
-      sensei:head_sensei_id(full_name)
-    `)
+    .select("id, name, address, city, province, phone, head_sensei_id")
     .eq("id", dojoId)
     .single();
 
@@ -45,9 +64,35 @@ export async function getDojoById(dojoId) {
     return null;
   }
 
+  // Sensei a cargo
+  let senseiInCharge = "Sin asignar";
+  if (data.head_sensei_id) {
+    const { data: head } = await supabase
+      .from("sensei")
+      .select("full_name")
+      .eq("id", data.head_sensei_id)
+      .single();
+    if (head) senseiInCharge = head.full_name;
+  }
+
+  // Total alumnos activos
+  const { count: studentsCount } = await supabase
+    .from("student")
+    .select("*", { count: "exact", head: true })
+    .eq("dojo_id", dojoId)
+    .eq("is_active", true);
+
+  // Total senseis
+  const { count: senseisCount } = await supabase
+    .from("sensei")
+    .select("*", { count: "exact", head: true })
+    .eq("dojo_id", dojoId);
+
   return {
     ...data,
-    senseiInCharge: data.sensei ? data.sensei.full_name : "Sin asignar",
+    senseiInCharge,
+    totalStudents: studentsCount || 0,
+    totalSenseis: senseisCount || 0,
   };
 }
 
