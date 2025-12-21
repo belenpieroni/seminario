@@ -28,9 +28,9 @@ export function SenseiStudentList() {
   const [filters, setFilters] = useState({
     name: "",
     age: "",
-    ageCondition: "exact", // exact | menor | mayor
+    ageCondition: "exact", 
     belt: "",
-    beltCondition: "exact", // exact | menor | mayor
+    beltCondition: "exact",
     examDate: "",
     examStart: "",
     examEnd: "",

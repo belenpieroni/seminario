@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Eye } from "lucide-react";
 import { getHeadSenseis } from "../queries/senseiQueries";
-import { SenseiManageModal } from "./SenseiManageModal";
+import { SenseiHeadManageModal } from "./SenseiHeadManageModal";
 
 export function AdminSenseiList() {
   const [senseis, setSenseis] = useState([]);
@@ -64,7 +64,7 @@ export function AdminSenseiList() {
       </div>
 
       {selectedSensei && (
-        <SenseiManageModal
+        <SenseiHeadManageModal
           senseiId={selectedSensei.id}
           onClose={() => setSelectedSensei(null)}
           onSave={handleUpdatedSensei}

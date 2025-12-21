@@ -18,6 +18,7 @@ import { AdminSenseiList } from "./components/AdminSenseiList"
 import AdminCreateDojo from "./components/AdminCreateDojo"
 
 import { login } from "./utils/auth"
+import DojoSenseis from "./components/DojoSenseis"
 
 export default function App() {
   const [userRole, setUserRole] = useState(null)
@@ -79,7 +80,7 @@ export default function App() {
             {/* SENSEI */}
             <Route path="/sensei/dashboard" element={<SenseiDashboard />} />
             <Route path="/sensei/alumnos" element={<SenseiStudentList />} />
-            <Route path="/sensei/sensei" element={<SenseiDashboard />} />
+            <Route path="/sensei/senseis" element={<DojoSenseis />} />
             <Route path="/sensei/exams" element={<SenseiExamForm />} />
 
             {/* ALUMNO */}
