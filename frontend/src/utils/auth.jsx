@@ -23,6 +23,22 @@ export async function login(email, password, role) {
     return { user, mustChangePassword: senseiRow.must_change_password }
   }
 
-  // otros roles no usan flag
+  // 3. Si es alumno, consultamos el flag
+  if (role === "alumno") {
+    const { data: alumnoRow, error: alumnoError } = await supabase
+      .from("alumno")
+      .select("must_change_password")
+      .eq("user_id", user.id)
+      .single()
+
+    if (alumnoError) {
+      console.error("Error consultando alumno:", alumnoError)
+      return { user, mustChangePassword: false }
+    }
+
+    return { user, mustChangePassword: alumnoRow.must_change_password }
+  }
+
+  // 4. Asociación no usa flag
   return { user, mustChangePassword: false }
 }

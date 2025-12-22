@@ -34,7 +34,7 @@ export function Login({ onLogin }) {
           {/* TÍTULO */}
           <div className="text-center mb-10">
             <h1 className="text-2xl tracking-[0.3em] font-light text-[#1a1a1a] uppercase">
-              Dojo portal
+              Dojo <span className="text-[#c41e3a]">PORTAL</span>
             </h1>
             <p className="mt-3 text-sm text-gray-500">
               Plataforma de gestión y certificación

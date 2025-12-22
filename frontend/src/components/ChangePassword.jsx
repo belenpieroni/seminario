@@ -1,3 +1,4 @@
+import { useNavigate, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { supabase } from "../supabaseClient"
 import { Lock, Eye, EyeOff } from "lucide-react"
@@ -7,6 +8,9 @@ export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [repeatPassword, setRepeatPassword] = useState("")
+  const navigate = useNavigate()
+  const location = useLocation()
+  const role = location.state?.role
   const [showOld, setShowOld] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showRepeat, setShowRepeat] = useState(false)
@@ -58,13 +62,16 @@ export default function ChangePassword() {
 
     // 2. Actualizar flag en tu tabla
     const user = (await supabase.auth.getUser()).data.user
-    await supabase
-      .from("sensei")
-      .update({ must_change_password: false })
-      .eq("user_id", user.id)
+    if (role === "sensei") { 
+      await supabase.from("sensei").update({ must_change_password: false }).eq("user_id", user.id)
+    }
+    if (role === "alumno") { 
+      await supabase.from("alumno").update({ must_change_password: false }).eq("user_id", user.id)
+    }
 
     // 3. Redirigir
-    window.location.href = "/dashboard"
+    await supabase.auth.signOut()
+    navigate("/")
   }
 
   return (

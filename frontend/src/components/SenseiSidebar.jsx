@@ -1,17 +1,21 @@
 import { LayoutDashboard, Users, ClipboardList, Award, LogOut } from "lucide-react"
 import { useNavigate, useLocation } from "react-router-dom"
 
-export function SenseiSidebar({ onLogout }) {
+export function SenseiSidebar({ onLogout, isHead }) {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const menuItems = [
+  // Ítems base (siempre visibles)
+  const baseItems = [
     { path: "/sensei/dashboard", label: "Mi dojo", icon: LayoutDashboard },
     { path: "/sensei/alumnos", label: "Alumnos", icon: Users },
-    { path: "/sensei/senseis", label: "Senseis", icon: Users },
     { path: "/sensei/exams", label: "Registrar exámen", icon: ClipboardList },
-    { path: "/sensei/certificados", label: "Certificados", icon: Award }
+    { path: "/sensei/certificados", label: "Certificados", icon: Award },
   ]
+
+  const menuItems = isHead
+    ? [...baseItems, { path: "/sensei/senseis", label: "Senseis", icon: Users }]
+    : baseItems
 
   return (
     <aside className="w-64 bg-[#1a1a1a] text-white min-h-screen p-6">
