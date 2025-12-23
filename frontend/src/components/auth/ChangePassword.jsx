@@ -1,8 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom"
 import { useState } from "react"
-import { supabase } from "../supabaseClient"
+import { supabase } from "../../supabaseClient"
 import { Lock, Eye, EyeOff } from "lucide-react"
-import fondo from "../assets/fondo.jpg"
+import fondo from "../../assets/fondo.jpg"
 
 export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState("")

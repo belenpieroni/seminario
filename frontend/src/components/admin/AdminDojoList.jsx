@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Building2, Edit2 } from "lucide-react"
-import { getDojos } from "../queries/dojoQueries"
+import { getDojos } from "../../queries/dojoQueries"
 import DojoManageModal from "./DojoManageModal"
 
 export function AdminDojoList({ onEditDojo = () => {} }) {

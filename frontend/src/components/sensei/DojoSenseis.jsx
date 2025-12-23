@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Plus, X, Trash, Eye } from "lucide-react";
 import { SenseiManageModal } from "./SenseiManageModal"; 
-import { supabase } from "../supabaseClient"; 
+import { supabase } from "../../supabaseClient"; 
 
 export default function DojoSenseis() {
   const [senseis, setSenseis] = useState([]);

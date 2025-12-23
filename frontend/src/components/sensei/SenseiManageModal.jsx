@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { getSenseiById, getSenseisByDojo, updateSensei } from "../queries/senseiQueries";
-import { EditableRow } from "./EditableRow";
+import { getSenseiById, getSenseisByDojo, updateSensei } from "../../queries/senseiQueries";
+import { EditableRow } from "../common/EditableRow";
 
 export function SenseiManageModal({ senseiId, dojoId, onClose, onSave }) {
   const [sensei, setSensei] = useState(null);

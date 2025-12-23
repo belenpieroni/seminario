@@ -2,24 +2,24 @@ import { Routes, Route, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { supabase } from "./supabaseClient"
 
-import { Login } from "./components/Login"
-import ChangePassword from "./components/ChangePassword"
-import { Header } from "./components/Header"
+import { Login } from "./components/auth/Login"
+import ChangePassword from "./components/auth/ChangePassword"
+import { Header } from "./components/common/Header"
 
-import { SenseiSidebar } from "./components/SenseiSidebar"
-import { StudentSidebar } from "./components/StudentSidebar"
-import AdminSidebar from "./components/AdminSidebar"
+import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
+import { StudentSidebar } from "./components/student/StudentSidebar"
+import AdminSidebar from "./components/admin/AdminSidebar"
 
-import { SenseiDashboard } from "./components/SenseiDashboard"
-import { SenseiStudentList } from "./components/SenseiStudentList"
-import { SenseiExamForm } from "./components/SenseiExamForm"
-import { StudentDashboard } from "./components/StudentDashboard"
-import { AdminDojoList } from "./components/AdminDojoList"
-import { AdminSenseiList } from "./components/AdminSenseiList"
-import AdminCreateDojo from "./components/AdminCreateDojo"
+import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
+import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
+import { SenseiExamForm } from "./components/sensei/SenseiExamForm"
+import { StudentDashboard } from "./components/student/StudentDashboard"
+import { AdminDojoList } from "./components/admin/AdminDojoList"
+import { AdminSenseiList } from "./components/admin/AdminSenseiList"
+import AdminCreateDojo from "./components/admin/AdminCreateDojo"
 
 import { login } from "./utils/auth"
-import DojoSenseis from "./components/DojoSenseis"
+import DojoSenseis from "./components/sensei/DojoSenseis"
 
 export default function App() {
   const [userRole, setUserRole] = useState(null)

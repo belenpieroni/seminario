@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { EditableRow } from "./EditableRow";
+import { EditableRow } from "../common/EditableRow";
 import {
   getDojoById,
   updateDojoField,
   deleteDojo,
-} from "../queries/dojoQueries";
+} from "../../queries/dojoQueries";
 
 export default function DojoManageModal({ dojoId, onClose }) {
   const [dojo, setDojo] = useState(null);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { supabase } from "../supabaseClient"
+import { supabase } from "../../supabaseClient"
 import { Building2, Users, UserCheck } from "lucide-react"
 
 export function SenseiDashboard() {

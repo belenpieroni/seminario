@@ -1,6 +1,6 @@
 import { Award, Eye, Hash } from "lucide-react"
 import { useState } from "react"
-import { CertificateDetail } from "./CertificateDetail"
+import { CertificateDetail } from "../CertificateDetail"
 
 export function StudentCertificates({ certificates = [] }) {
   const [selectedHash, setSelectedHash] = useState(null)

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Eye } from "lucide-react";
-import { getHeadSenseis } from "../queries/senseiQueries";
-import { SenseiHeadManageModal } from "./SenseiHeadManageModal";
+import { getHeadSenseis } from "../../queries/senseiQueries";
+import { SenseiHeadManageModal } from "../sensei/SenseiHeadManageModal";
 
 export function AdminSenseiList() {
   const [senseis, setSenseis] = useState([]);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { getStudentById, getStudentsByDojo, updateStudent } from "../queries/studentQueries";
-import { EditableRow } from "./EditableRow";
+import { getStudentById, getStudentsByDojo, updateStudent } from "../../queries/studentQueries";
+import { EditableRow } from "../common/EditableRow";
 
 export function StudentManageModal({ studentId, dojoId, onClose, onSave }) {
   const [student, setStudent] = useState(null);
