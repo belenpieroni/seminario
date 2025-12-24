@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Mail, Lock } from "lucide-react"
 import bgSensei from "../../assets/bg-sensei.jpg"
-import bgAlumno from "../../assets/bg-student.jpg"
+import bgStudent from "../../assets/bg-student.jpg"
 import bgAsociacion from "../../assets/bg-asociacion.jpg"
 
 export function Login({ onLogin }) {
@@ -11,7 +11,7 @@ export function Login({ onLogin }) {
 
   const backgrounds = {
     sensei: bgSensei,
-    alumno: bgAlumno,
+    student: bgStudent,
     asociacion: bgAsociacion
   }
 
@@ -135,7 +135,7 @@ export function Login({ onLogin }) {
 
             {/* ROLES */}
             <div className="flex justify-between text-sm text-gray-700">
-              {["sensei", "alumno", "asociacion"].map(r => (
+              {["sensei", "student", "asociacion"].map(r => (
                 <label key={r} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"

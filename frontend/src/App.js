@@ -43,7 +43,7 @@ export default function App() {
       setUserRole(role)
 
       if (role === "sensei") navigate("/sensei/dashboard")
-      if (role === "alumno") navigate("/student/dashboard")
+      if (role === "student") navigate("/student/dashboard")
       if (role === "asociacion") navigate("/admin/dashboard")
     } catch {
       alert("Credenciales inválidas")
@@ -84,19 +84,19 @@ export default function App() {
           if (dojoData) setDojo(dojoData)
         } 
       }
-      if (userRole === "alumno") {
-        const { data: alumno } = await supabase
-          .from("alumno")
+      if (userRole === "student") {
+        const { data: student } = await supabase
+          .from("student")
           .select("full_name, dojo_id")
           .eq("user_id", user.id)
           .single()
-        if (alumno) { 
-          setUserName(alumno.full_name) 
+        if (student) { 
+          setUserName(student.full_name) 
           
           const { data: dojoData } = await supabase
             .from("dojo")
             .select("name")
-            .eq("id", alumno.dojo_id)
+            .eq("id", student.dojo_id)
             .single() 
             
           if (dojoData) setDojo(dojoData) 
@@ -134,18 +134,18 @@ export default function App() {
             {userRole === "sensei" && (
               <SenseiSidebar onLogout={handleLogout} isHead={isHead} />
             )}
-            {userRole === "alumno" && <StudentSidebar onLogout={handleLogout} />}
+            {userRole === "student" && <StudentSidebar onLogout={handleLogout} />}
             {userRole === "asociacion" && <AdminSidebar onLogout={handleLogout} />}
 
             <main className="flex-1 p-6">
               <Routes>
                 {/* SENSEI */}
                 <Route path="/sensei/dashboard" element={<SenseiDashboard />} />
-                <Route path="/sensei/alumnos" element={<SenseiStudentList />} />
+                <Route path="/sensei/students" element={<SenseiStudentList />} />
                 <Route path="/sensei/senseis" element={<DojoSenseis />} />
                 <Route path="/sensei/exams" element={ <SenseiExamList /> } />
 
-                {/* ALUMNO */}
+                {/* student */}
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
                 <Route path="/student/progress" element={<StudentProgress />} />
                 <Route path="/student/notifications" element={<StudentNotifications />} />
