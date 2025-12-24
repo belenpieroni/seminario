@@ -1,10 +1,16 @@
-import { LayoutDashboard, Award, User, LogOut } from "lucide-react"
+import { LayoutDashboard, Bell, Award, User, LogOut } from "lucide-react"
+import { useNavigate, useLocation } from "react-router-dom"
 
-export function StudentSidebar({ currentView, onNavigate, onLogout }) {
+export function StudentSidebar({ onLogout }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Ítems base del student
   const menuItems = [
-    { id: "dashboard", label: "Mi progreso", icon: LayoutDashboard },
-    { id: "certificados", label: "Mis certificados", icon: Award },
-    { id: "perfil", label: "Mi perfil", icon: User }
+    { path: "/student/dashboard", label: "Mi dojo", icon: LayoutDashboard },
+    { path: "/student/notifications", label: "Notificaciones", icon: Bell },
+    { path: "/student/progress", label: "Mi progreso", icon: User },
+    { path: "/student/certificados", label: "Mis certificados", icon: Award },
   ]
 
   return (
@@ -12,12 +18,14 @@ export function StudentSidebar({ currentView, onNavigate, onLogout }) {
       <nav className="space-y-2">
         {menuItems.map(item => {
           const Icon = item.icon
+          const active = location.pathname === item.path
+
           return (
             <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
+              key={item.path}
+              onClick={() => navigate(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                currentView === item.id
+                active
                   ? "bg-[#c41e3a] text-white"
                   : "text-gray-300 hover:bg-gray-800"
               }`}
