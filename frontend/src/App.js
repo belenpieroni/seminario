@@ -5,14 +5,15 @@ import { supabase } from "./supabaseClient"
 import { Login } from "./components/auth/Login"
 import ChangePassword from "./components/auth/ChangePassword"
 import { Header } from "./components/common/Header"
+import { VerifyCertificate } from "./components/VerifyCertificate"
 
 import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
 import { StudentSidebar } from "./components/student/StudentSidebar"
 import AdminSidebar from "./components/admin/AdminSidebar"
-
+import PublicLanding from "./components/PublicLanding"
 import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
 import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
-import { SenseiExamForm } from "./components/sensei/SenseiExamForm"
+import SenseiExamList from "./components/sensei/SenseiExamList"
 import { StudentDashboard } from "./components/student/StudentDashboard"
 import { AdminDojoList } from "./components/admin/AdminDojoList"
 import { AdminSenseiList } from "./components/admin/AdminSenseiList"
@@ -113,7 +114,9 @@ export default function App() {
       {!userRole ? (
         // Rutas públicas
         <Routes>
-          <Route path="/" element={<Login onLogin={handleLogin} />} />
+          <Route path="/" element={<PublicLanding />} />
+          <Route path="/verify" element={<VerifyCertificate />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/change-password" element={<ChangePassword />} />
         </Routes>
       ) : (
@@ -138,7 +141,7 @@ export default function App() {
                 <Route path="/sensei/dashboard" element={<SenseiDashboard />} />
                 <Route path="/sensei/alumnos" element={<SenseiStudentList />} />
                 <Route path="/sensei/senseis" element={<DojoSenseis />} />
-                <Route path="/sensei/exams" element={<SenseiExamForm />} />
+                <Route path="/sensei/exams" element={ <SenseiExamList senseiId="UUID_DEL_SENSEI" onViewDetail={(id) => console.log("Ver detalle examen", id)} onCreateExam={() => console.log("Crear examen")} /> } />
 
                 {/* ALUMNO */}
                 <Route path="/student/dashboard" element={<StudentDashboard />} />

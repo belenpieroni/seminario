@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { Search, CheckCircle, XCircle, KeyRound } from "lucide-react"
 import fondo from "../assets/fondo.jpg"
 
-export function VerifyCertificate({ onBack }) {
+export function VerifyCertificate() {
+  const navigate = useNavigate()
   const [hash, setHash] = useState("")
   const [verificationResult, setVerificationResult] = useState(null)
 
@@ -25,7 +27,7 @@ export function VerifyCertificate({ onBack }) {
 
           {/* VOLVER */}
           <button
-            onClick={onBack}
+            onClick={() => navigate("/")}
             className="text-sm text-[#c41e3a] mb-6 hover:underline"
           >
             ← Volver

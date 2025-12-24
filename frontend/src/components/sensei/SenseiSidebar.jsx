@@ -9,7 +9,7 @@ export function SenseiSidebar({ onLogout, isHead }) {
   const baseItems = [
     { path: "/sensei/dashboard", label: "Mi dojo", icon: LayoutDashboard },
     { path: "/sensei/alumnos", label: "Alumnos", icon: Users },
-    { path: "/sensei/exams", label: "Registrar exámen", icon: ClipboardList },
+    { path: "/sensei/exams", label: "Exámenes", icon: ClipboardList },
     { path: "/sensei/certificados", label: "Certificados", icon: Award },
   ]
 
