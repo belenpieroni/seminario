@@ -21,7 +21,7 @@ export function SenseiManageModal({ senseiId, dojoId, onClose, onSave }) {
   async function handleDelete() {
     setSaving(true);
     try {
-        await updateSensei(sensei.id, { is_active: false }); // 👈 borrado lógico
+        await updateSensei(sensei.id, { is_active: false });
         const refreshed = await getSenseisByDojo(dojoId);
         onSave(refreshed);
         onClose(true);

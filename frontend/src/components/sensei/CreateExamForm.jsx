@@ -2,8 +2,9 @@ import { useState, useEffect } from "react"
 import { supabase } from "../../supabaseClient"
 import { Combobox } from "@headlessui/react"
 import { getDojos } from "../../queries/dojoQueries"
+import { BackButton } from "../common/BackButton"
 
-export default function CreateExamForm({ senseiId, dojoId, onExamCreated }) {
+export default function CreateExamForm({ senseiId, dojoId, onExamCreated, onBack }) {
     const [examDate, setExamDate] = useState("")
     const [locationDojo, setLocationDojo] = useState(null)
     const [observations, setObservations] = useState("")
@@ -100,6 +101,7 @@ export default function CreateExamForm({ senseiId, dojoId, onExamCreated }) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white shadow-md">
+        <BackButton onBack={onBack} />
         <div>
             <label className="block mb-2">Fecha del examen</label>
             <input

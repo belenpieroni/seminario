@@ -85,3 +85,50 @@ export async function getExamsByStudent(studentId) {
     status: getExamStatus(e.exam_date),
   }))
 }
+
+// examQueries.js
+export async function getExamDetail(examId) {
+  if (!examId) return null
+
+  const { data, error } = await supabase
+    .from("exam")
+    .select(`
+      id,
+      exam_date,
+      observations,
+      location_dojo:location_dojo_id(name),
+      enrollments:exam_enrollment(
+        id,
+        belt,
+        enrolled_at,
+        student:student_id (
+          id,
+          full_name,
+          dojo:dojo_id (name),
+          current_belt
+        )
+      )
+    `)
+    .eq("id", examId)
+    .single()
+
+  if (error) {
+    console.error("Error cargando detalle de examen:", error)
+    return null
+  }
+
+  return {
+    id: data.id,
+    date: new Date(data.exam_date).toLocaleDateString("es-AR"),
+    locationDojo: data.location_dojo?.name || "Sede desconocida",
+    observations: data.observations,
+    enrollments: data.enrollments.map((enr) => ({
+      id: enr.id,
+      studentName: enr.student?.full_name,
+      studentDojo: enr.student?.dojo?.name,
+      currentBelt: enr.student?.current_belt,
+      beltToRender: enr.belt,
+      enrolledAt: new Date(enr.enrolled_at).toLocaleDateString("es-AR"),
+    })),
+  }
+}

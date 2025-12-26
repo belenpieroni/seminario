@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import CreateExamForm from "./CreateExamForm"
+import SenseiExamDetail from "./SenseiExamDetail"
 import { Calendar, MapPin, Users, Plus } from "lucide-react"
 import { supabase } from "../../supabaseClient"
 import dayjs from "dayjs"
@@ -9,6 +10,7 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [sensei, setSenseiId] = useState("")
+  const [selectedExamId, setSelectedExamId] = useState(null)
 
   const getStatus = (examDate) => {
     const today = dayjs().format("YYYY-MM-DD")
@@ -87,12 +89,21 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
 
     fetchExams()
   }, [sensei])
+  if (selectedExamId) {
+    return(
+      <SenseiExamDetail
+      examId={selectedExamId}
+      onBack={() => setSelectedExamId(null)}
+      />
+    )
+  }
 
   return (
     <div className="p-8">
       {showCreateForm ? (
         <CreateExamForm
           senseiId={sensei}
+          onBack={() => setShowCreateForm(false)}
           onExamCreated={(newExam) => {
             setShowCreateForm(false)
             setExams([...exams, {
@@ -136,7 +147,7 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
                 <div
                   key={exam.id}
                   className="bg-white shadow-md hover:shadow-lg transition-shadow cursor-pointer p-6"
-                  onClick={() => onViewDetail(exam.id)}
+                  onClick={() => setSelectedExamId(exam.id)}
                 >
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex flex-col">
@@ -150,9 +161,7 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
                       </div>
                     </div>
                     <span
-                      className={`px-3 py-1 text-sm rounded ${getStatusColor(
-                        exam.status
-                      )}`}
+                      className={`px-3 py-1 text-sm rounded ${getStatusColor(exam.status)}`}
                     >
                       {getStatusText(exam.status)}
                     </span>
@@ -166,7 +175,7 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      onViewDetail(exam.id)
+                      setSelectedExamId(exam.id)
                     }}
                     className="w-full bg-[#1a1a1a] text-white py-2 hover:bg-[#c41e3a] transition-colors"
                   >

@@ -8,7 +8,7 @@ export function SenseiSidebar({ onLogout, isHead }) {
   // Ítems base (siempre visibles)
   const baseItems = [
     { path: "/sensei/dashboard", label: "Mi dojo", icon: LayoutDashboard },
-    { path: "/sensei/alumnos", label: "Alumnos", icon: Users },
+    { path: "/sensei/students", label: "Alumnos", icon: Users },
     { path: "/sensei/exams", label: "Exámenes", icon: ClipboardList },
     { path: "/sensei/certificados", label: "Certificados", icon: Award },
   ]

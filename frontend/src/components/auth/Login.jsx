@@ -1,13 +1,16 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Mail, Lock } from "lucide-react"
 import bgSensei from "../../assets/bg-sensei.jpg"
 import bgStudent from "../../assets/bg-student.jpg"
 import bgAsociacion from "../../assets/bg-asociacion.jpg"
+import { BackButton } from "../common/BackButton"
 
 export function Login({ onLogin }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("sensei")
+  const navigate = useNavigate()
 
   const backgrounds = {
     sensei: bgSensei,
@@ -26,10 +29,9 @@ export function Login({ onLogin }) {
       style={{ backgroundImage: `url(${backgrounds[role]})` }}
     >
       <div className="absolute inset-0 bg-black/30" />
-
       <div className="relative w-full max-w-md px-4">
         <div className="backdrop-blur-md bg-white/80 shadow-2xl p-8">
-          
+          <BackButton onBack={() => navigate("/")} />
           {/* TÍTULO */}
           <div className="text-center mb-10">
             <h1 className="text-2xl tracking-[0.3em] font-light text-[#1a1a1a] uppercase">

@@ -19,13 +19,11 @@ export function SenseiHeadManageModal({ senseiId, onClose, onSave }) {
     load();
   }, [senseiId]);
 
-  // 🔒 Protección obligatoria
   if (!sensei) return null;
 
   async function updateField(field, value) {
     const updated = await updateSensei(sensei.id, { [field]: value });
 
-    // ✅ Mantener estructura local
     const merged = {
       ...sensei,
       [field]: updated[field]
