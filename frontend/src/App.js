@@ -15,7 +15,7 @@ import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
 import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
 import SenseiExamList from "./components/sensei/SenseiExamList"
 import { StudentDashboard } from "./components/student/StudentDashboard"
-import { StudentProgress } from "./components/student/StudentProgress"
+import StudentProgress from "./components/student/StudentProgress"
 import { StudentNotifications } from "./components/student/StudentNotifications"
 import { AdminDojoList } from "./components/admin/AdminDojoList"
 import { AdminSenseiList } from "./components/admin/AdminSenseiList"
@@ -145,7 +145,7 @@ export default function App() {
                 <Route path="/sensei/senseis" element={<DojoSenseis />} />
                 <Route path="/sensei/exams" element={ <SenseiExamList /> } />
 
-                {/* student */}
+                {/* STUDENT */}
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
                 <Route path="/student/progress" element={<StudentProgress />} />
                 <Route path="/student/notifications" element={<StudentNotifications />} />

@@ -86,7 +86,6 @@ export async function getExamsByStudent(studentId) {
   }))
 }
 
-// examQueries.js
 export async function getExamDetail(examId) {
   if (!examId) return null
 
@@ -99,13 +98,14 @@ export async function getExamDetail(examId) {
       location_dojo:location_dojo_id(name),
       enrollments:exam_enrollment(
         id,
+        student_id,
         belt,
         enrolled_at,
-        student:student_id (
+        student:student (
           id,
           full_name,
-          dojo:dojo_id (name),
-          current_belt
+          current_belt,
+          dojo:dojo_id (name)
         )
       )
     `)
@@ -117,18 +117,148 @@ export async function getExamDetail(examId) {
     return null
   }
 
+  console.log("✅ Datos crudos de Supabase:", data)
+
   return {
     id: data.id,
     date: new Date(data.exam_date).toLocaleDateString("es-AR"),
     locationDojo: data.location_dojo?.name || "Sede desconocida",
     observations: data.observations,
-    enrollments: data.enrollments.map((enr) => ({
-      id: enr.id,
-      studentName: enr.student?.full_name,
-      studentDojo: enr.student?.dojo?.name,
-      currentBelt: enr.student?.current_belt,
-      beltToRender: enr.belt,
-      enrolledAt: new Date(enr.enrolled_at).toLocaleDateString("es-AR"),
-    })),
+    enrollments: data.enrollments.map((enr) => {
+      console.log("📌 Enrollment recibido:", enr)
+      return {
+        id: enr.id,
+        studentId: enr.student_id,              // 🔑 ahora sí lo tenemos
+        studentName: enr.student?.full_name,
+        studentDojo: enr.student?.dojo?.name,
+        currentBelt: enr.student?.current_belt,
+        belt: enr.belt,                         // cinturón a rendir
+        enrolledAt: new Date(enr.enrolled_at).toLocaleDateString("es-AR"),
+      }
+    }),
   }
 }
+
+// Obtener historial de exámenes de un alumno
+export async function getExamHistory(studentId) {
+  if (!studentId) return []
+
+  const { data, error } = await supabase
+    .from("exam_enrollment")
+    .select(`
+      id,
+      student_id,
+      belt,
+      enrolled_at,
+      exam:exam_id (
+        id,
+        exam_date,
+        observations,
+        dojo:dojo_id (name),
+        sensei:sensei_id (
+          id,
+          full_name
+        )
+      ),
+      result:exam_result (
+        kata_grade,
+        kumite_grade,
+        kihon_grade,
+        final_grade,
+        observations,
+        present,
+        recorded_at
+      )
+    `)
+    .eq("student_id", studentId)
+    .order("enrolled_at", { ascending: false })
+
+  if (error) {
+    console.error("❌ Error cargando historial:", error.message)
+    return []
+  }
+
+  console.log("✅ Exámenes encontrados (raw):", data)
+
+  return data.map((enr) => ({
+    id: enr.id,
+    studentId: enr.student_id,
+    belt: enr.belt,
+    date: enr.exam?.exam_date
+      ? new Date(enr.exam.exam_date).toLocaleDateString("es-AR")
+      : "Fecha desconocida",
+    dojo_name: enr.exam?.dojo?.name ?? "Dojo desconocido",
+    sensei_name: enr.exam?.sensei?.full_name ?? "Sensei desconocido",
+    exam_observations: enr.exam?.observations ?? null,
+    present: enr.result?.present ?? null,
+    kata: enr.result?.kata_grade ?? null,
+    kumite: enr.result?.kumite_grade ?? null,
+    kihon: enr.result?.kihon_grade ?? null,
+    final_grade: enr.result?.final_grade ?? null,
+    observations: enr.result?.observations ?? null,
+    recorded_at: enr.result?.recorded_at ?? null,
+    approved: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"].includes(enr.result?.final_grade ?? ""),
+  }))
+}
+
+export async function getExamDetailByEnrollment(enrollmentId) {
+  if (!enrollmentId) return null
+
+  const { data, error } = await supabase
+    .from("exam_enrollment")
+    .select(`
+      id,
+      belt,
+      exam:exam_id (
+        id,
+        exam_date,
+        observations,
+        dojo:dojo_id (name),
+        sensei:sensei_id (id, full_name)
+      ),
+      exam_result (
+        kata_grade,
+        kumite_grade,
+        kihon_grade,
+        final_grade,
+        observations,
+        present
+      )
+    `)
+    .eq("id", enrollmentId)
+    .single()
+
+  if (error) {
+    console.error("❌ Error cargando detalle de examen:", error.message)
+    return null
+  }
+
+  if (!data) return null
+
+  const result = data.exam_result?.[0] ?? null
+
+  return {
+    id: data.id,
+    belt: data.belt,
+    date: data.exam?.exam_date
+      ? new Date(data.exam.exam_date).toLocaleDateString("es-AR")
+      : "Fecha desconocida",
+    dojo_name: data.exam?.dojo?.name ?? "Dojo desconocido",
+    sensei_name: data.exam?.sensei?.full_name ?? "Sensei desconocido",
+    exam_observations: data.exam?.observations ?? null,
+
+    // Resultados
+    present: result?.present ?? false,
+    kata: result?.kata_grade ?? null,
+    kumite: result?.kumite_grade ?? null,
+    kihon: result?.kihon_grade ?? null,
+    final_grade: result?.final_grade ?? null,
+    observations: result?.observations ?? null,
+
+    approved: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C-"].includes(
+      result?.final_grade ?? ""
+    ),
+  }
+}
+
+

@@ -72,3 +72,30 @@ export async function addExamToStudent(student_id, exam) {
 
   return data;
 }
+
+//Actualizar cinturón del alumno con logs
+export async function updateStudentBelt(studentId, newBelt) {
+  console.log("🔧 updateStudentBelt() llamado")
+  console.log("➡️ Parámetros recibidos:", { studentId, newBelt })
+
+  const { data, error } = await supabase
+    .from("student")
+    .update({ current_belt: newBelt })
+    .eq("id", studentId)
+    .select("id, full_name, current_belt") // devuelve la fila actualizada
+
+  if (error) {
+    console.error("❌ Error actualizando cinturón:", error.message)
+    throw error
+  }
+
+  if (!data || data.length === 0) {
+    console.warn("⚠️ No se encontró ningún alumno con ese ID. Verifica studentId.")
+    return null
+  }
+
+  console.log("✅ Update ejecutado correctamente")
+  console.log("📄 Fila actualizada:", data)
+
+  return data
+}

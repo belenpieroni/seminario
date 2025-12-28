@@ -2,10 +2,12 @@ import { useEffect, useState } from "react"
 import { getExamDetail } from "../../queries/examQueries"
 import { Calendar, MapPin, Plus } from "lucide-react"
 import { BackButton } from "../common/BackButton"
+import SenseiExamResultForm from "./SenseiExamResultForm"
 
 export default function SenseiExamDetail({ examId, onBack }) {
   const [exam, setExam] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedEnrollment, setSelectedEnrollment] = useState(null)
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -58,7 +60,10 @@ export default function SenseiExamDetail({ examId, onBack }) {
               <td className="p-2">{enr.currentBelt}</td>
               <td className="p-2">{enr.beltToRender}</td>
               <td className="p-2">
-                <button className="bg-[#c41e3a] text-white p-2 rounded hover:bg-[#a01830]">
+                <button
+                  onClick={() => setSelectedEnrollment(enr)}
+                  className="bg-[#c41e3a] text-white p-2 rounded hover:bg-[#a01830]"
+                >
                   <Plus className="w-4 h-4" />
                 </button>
               </td>
@@ -66,6 +71,14 @@ export default function SenseiExamDetail({ examId, onBack }) {
           ))}
         </tbody>
       </table>
+
+      {/* Modal del formulario de resultados */}
+      {selectedEnrollment && (
+        <SenseiExamResultForm
+          enrollment={selectedEnrollment}
+          onClose={() => setSelectedEnrollment(null)}
+        />
+      )}
     </div>
   )
 }

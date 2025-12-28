@@ -12,7 +12,18 @@ export function StudentNotifications() {
   const [selectedExam, setSelectedExam] = useState(null)
   const [enrolling, setEnrolling] = useState(false)
 
-  const belts = ["blanco", "amarillo", "naranja", "verde", "azul", "marrón", "negro"]
+  const grades = [
+    "Blanco", "Amarillo", "Naranja", "Verde", "Azul", "Marrón", "Negro",
+    "1er Dan", "2do Dan", "3er Dan", "4to Dan", "5to Dan",
+    "6to Dan", "7mo Dan", "8vo Dan", "9no Dan"
+  ]
+
+  const getNextGrade = (current) => {
+    const idx = grades.findIndex(
+      g => g.toLowerCase() === current?.toLowerCase()
+    )
+    return idx >= 0 && idx < grades.length - 1 ? grades[idx + 1] : current
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +49,6 @@ export function StudentNotifications() {
         .single()
       setDojo(dojoData)
 
-      const todayISO = dayjs().format("YYYY-MM-DD")
       const { data: examData } = await supabase
         .from("exam")
         .select(`
@@ -49,7 +59,6 @@ export function StudentNotifications() {
           location_dojo:location_dojo_id(name)
         `)
         .eq("dojo_id", studentData.dojo_id)
-        .gte("exam_date", todayISO)
         .order("exam_date", { ascending: true })
 
       setExams(examData || [])
@@ -59,16 +68,11 @@ export function StudentNotifications() {
     fetchData()
   }, [])
 
-  const getNextBelt = (current) => {
-    const idx = belts.indexOf(current?.toLowerCase())
-    return idx >= 0 && idx < belts.length - 1 ? belts[idx + 1] : current
-  }
-
   const handleConfirmEnroll = async () => {
     if (!student?.id || !selectedExam) return
     setEnrolling(true)
 
-    const nextBelt = getNextBelt(student.current_belt)
+    const nextBelt = getNextGrade(student.current_belt)
 
     const { error } = await supabase
       .from("exam_enrollment")
@@ -99,49 +103,61 @@ export function StudentNotifications() {
 
       <div className="space-y-4">
         {exams.length === 0 ? (
-          <p className="text-gray-500">No hay exámenes próximos en tu dojo.</p>
+          <p className="text-gray-500">No hay exámenes en tu dojo.</p>
         ) : (
-          exams.map((e) => (
-            <div key={e.id} className="bg-white shadow-md p-4 rounded-lg">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-[#c41e3a]" />
-                  <span className="font-medium">
-                    Examen en {e.location_dojo?.name || dojo.name}
-                  </span>
-                </div>
-                <div className="flex flex-col text-gray-700 text-sm items-end">
+          exams.map((e) => {
+            const examDate = dayjs(e.exam_date)
+            const isPast = examDate.isBefore(dayjs(), "day")
+
+            return (
+              <div key={e.id} className="bg-white shadow-md p-4 rounded-lg">
+                <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{dayjs(e.exam_date).format("DD/MM/YYYY")}</span>
+                    <Bell className="w-5 h-5 text-[#c41e3a]" />
+                    <span className="font-medium">
+                      Examen en {e.location_dojo?.name || dojo.name}
+                    </span>
                   </div>
-                  <span className="text-gray-500">
-                    Notificado: {dayjs(e.created_at).format("DD/MM/YYYY HH:mm")}
-                  </span>
+                  <div className="flex flex-col text-gray-700 text-sm items-end">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>{examDate.format("DD/MM/YYYY")}</span>
+                    </div>
+                    <span className="text-gray-500">
+                      Notificado: {dayjs(e.created_at).format("DD/MM/YYYY HH:mm")}
+                    </span>
+                  </div>
+                </div>
+
+                {e.observations && (
+                  <p className="mt-2 text-sm text-gray-600">{e.observations}</p>
+                )}
+
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <MapPin className="w-4 h-4" />
+                    <span>Sede: {e.location_dojo?.name || "Sede del dojo"}</span>
+                  </div>
+                  <button
+                    className={`px-4 py-2 rounded transition-colors ${
+                      isPast
+                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        : "bg-[#c41e3a] text-white hover:bg-[#a01830]"
+                    }`}
+                    disabled={isPast}
+                    onClick={() => {
+                      if (!isPast) {
+                        setSelectedExam(e)
+                        setShowConfirm(true)
+                      }
+                    }}
+                  >
+                    {isPast ? "Examen finalizado" : "Inscribirme"}
+                  </button>
                 </div>
               </div>
-
-              {e.observations && (
-                <p className="mt-2 text-sm text-gray-600">{e.observations}</p>
-              )}
-
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <MapPin className="w-4 h-4" />
-                  <span>Sede: {e.location_dojo?.name || "Sede del dojo"}</span>
-                </div>
-                <button
-                  className="bg-[#c41e3a] text-white px-4 py-2 rounded hover:bg-[#a01830]"
-                  onClick={() => {
-                    setSelectedExam(e)
-                    setShowConfirm(true)
-                  }}
-                >
-                  Inscribirme
-                </button>
-              </div>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
 
@@ -168,7 +184,7 @@ export function StudentNotifications() {
                 en el dojo{" "}
                 <strong>{selectedExam.location_dojo?.name || dojo.name}</strong>{" "}
                 para rendir el cinturón{" "}
-                <strong>{getNextBelt(student.current_belt)}</strong>?
+                <strong>{getNextGrade(student.current_belt)}</strong>?
               </p>
             </div>
 
