@@ -1,28 +1,33 @@
+//imports generales
 import { Routes, Route, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { supabase } from "./supabaseClient"
-
+//Imports componentes auth
 import { Login } from "./components/auth/Login"
 import ChangePassword from "./components/auth/ChangePassword"
+//Imports componentes common
 import { Header } from "./components/common/Header"
+//Imports componentes públicos
 import { VerifyCertificate } from "./components/VerifyCertificate"
-
-import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
-import { StudentSidebar } from "./components/student/StudentSidebar"
-import AdminSidebar from "./components/admin/AdminSidebar"
 import PublicLanding from "./components/PublicLanding"
-import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
-import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
-import SenseiExamList from "./components/sensei/SenseiExamList"
-import { StudentDashboard } from "./components/student/StudentDashboard"
-import StudentProgress from "./components/student/StudentProgress"
-import { StudentNotifications } from "./components/student/StudentNotifications"
+//Imports componentes asociación
+import AdminSidebar from "./components/admin/AdminSidebar"
 import { AdminDojoList } from "./components/admin/AdminDojoList"
 import { AdminSenseiList } from "./components/admin/AdminSenseiList"
 import AdminCreateDojo from "./components/admin/AdminCreateDojo"
-
-import { login } from "./utils/auth"
+//Imports componentes sensei
+import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
+import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
+import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
+import SenseiExamList from "./components/sensei/SenseiExamList"
 import DojoSenseis from "./components/sensei/DojoSenseis"
+//Imports componentes student
+import { StudentSidebar } from "./components/student/StudentSidebar"
+import { StudentDashboard } from "./components/student/StudentDashboard"
+import StudentProgress from "./components/student/StudentProgress"
+import { StudentNotifications } from "./components/student/StudentNotifications"
+//Import utils
+import { login } from "./utils/auth"
 
 export default function App() {
   const [userRole, setUserRole] = useState(null)
@@ -31,16 +36,29 @@ export default function App() {
   const [isHead, setIsHead] = useState(false)
   const navigate = useNavigate()
 
-  const handleLogin = async (email, password, role) => {
+  const handleLogin = async (email, password) => {
     try {
-      const { mustChangePassword } = await login(email, password, role)
+      const { role, mustChangePassword, isHead, fullName, dojoId } = await login(email, password)
 
-      if (mustChangePassword) {
+      if (mustChangePassword && (role === "sensei" || role === "student")) {
         navigate("/change-password", { state: { role } })
         return
       }
-      
+
       setUserRole(role)
+      setIsHead(isHead)
+      setUserName(fullName)
+
+      if (dojoId) {
+        const { data: dojoData } = await supabase
+          .from("dojo")
+          .select("name")
+          .eq("id", dojoId)
+          .single()
+        if (dojoData) setDojo(dojoData)
+      } else {
+        setDojo(null)
+      }
 
       if (role === "sensei") navigate("/sensei/dashboard")
       if (role === "student") navigate("/student/dashboard")
@@ -50,14 +68,15 @@ export default function App() {
     }
   }
 
-  const handleLogout = () => { 
-    setUserRole(null) 
-    setIsHead(false) 
-    setDojo(null) 
-    setUserName("") 
-    navigate("/") 
+  const handleLogout = () => {
+    supabase.auth.signOut()
+    setUserRole(null)
+    setIsHead(false)
+    setDojo(null)
+    setUserName("")
+    navigate("/")
   }
-  
+
   useEffect(() => {
     async function fetchUserData() {
       const { data: userData } = await supabase.auth.getUser()
@@ -65,10 +84,10 @@ export default function App() {
       if (!user) return
 
       if (userRole === "sensei") {
-        const { data: sensei } = await supabase 
-          .from("sensei") 
+        const { data: sensei } = await supabase
+          .from("sensei")
           .select("is_head, full_name, dojo_id")
-          .eq("user_id", user.id) 
+          .eq("user_id", user.id)
           .single()
 
         if (sensei) {
@@ -82,7 +101,7 @@ export default function App() {
             .single()
 
           if (dojoData) setDojo(dojoData)
-        } 
+        }
       }
       if (userRole === "student") {
         const { data: student } = await supabase
@@ -90,25 +109,25 @@ export default function App() {
           .select("full_name, dojo_id")
           .eq("user_id", user.id)
           .single()
-        if (student) { 
-          setUserName(student.full_name) 
-          
+        if (student) {
+          setUserName(student.full_name)
+
           const { data: dojoData } = await supabase
             .from("dojo")
             .select("name")
             .eq("id", student.dojo_id)
-            .single() 
-            
-          if (dojoData) setDojo(dojoData) 
-          }
+            .single()
+
+          if (dojoData) setDojo(dojoData)
         }
-        if (userRole === "asociacion") {
-          setUserName("Asociación Argentina de Karate")
-          setDojo(null)
-        }
-      } 
-      
-      fetchUserData()
+      }
+      if (userRole === "asociacion") {
+        setUserName("Asociación Argentina de Karate")
+        setDojo(null)
+      }
+    }
+
+    fetchUserData()
   }, [userRole])
 
   return (
@@ -143,7 +162,7 @@ export default function App() {
                 <Route path="/sensei/dashboard" element={<SenseiDashboard />} />
                 <Route path="/sensei/students" element={<SenseiStudentList />} />
                 <Route path="/sensei/senseis" element={<DojoSenseis />} />
-                <Route path="/sensei/exams" element={ <SenseiExamList /> } />
+                <Route path="/sensei/exams" element={<SenseiExamList />} />
 
                 {/* STUDENT */}
                 <Route path="/student/dashboard" element={<StudentDashboard />} />

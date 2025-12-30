@@ -1,44 +1,56 @@
 import { supabase } from "../supabaseClient"
 
-export async function login(email, password, role) {
+export async function login(email, password) {
   // 1. Login en Auth
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) throw new Error("Credenciales inválidas")
 
   const user = data.user
+  if (!user) throw new Error("Usuario no encontrado")
 
-  // 2. Si es sensei, consultamos el flag
-  if (role === "sensei") {
-    const { data: senseiRow, error: senseiError } = await supabase
-      .from("sensei")
-      .select("must_change_password")
-      .eq("user_id", user.id)
-      .single()
+  // 2. Buscar en tabla sensei
+  const { data: senseiRow } = await supabase
+    .from("sensei")
+    .select("id, full_name, dojo_id, is_head, must_change_password")
+    .eq("user_id", user.id)
+    .maybeSingle()
 
-    if (senseiError) {
-      console.error("Error consultando sensei:", senseiError)
-      return { user, mustChangePassword: false }
+  if (senseiRow) {
+    return {
+      user,
+      role: "sensei",
+      isHead: senseiRow.is_head,
+      mustChangePassword: senseiRow.must_change_password,
+      fullName: senseiRow.full_name,
+      dojoId: senseiRow.dojo_id,
     }
-
-    return { user, mustChangePassword: senseiRow.must_change_password }
   }
 
-  // 3. Si es alumno, consultamos el flag
-  if (role === "alumno") {
-    const { data: alumnoRow, error: alumnoError } = await supabase
-      .from("alumno")
-      .select("must_change_password")
-      .eq("user_id", user.id)
-      .single()
+  // 3. Buscar en tabla student
+  const { data: studentRow } = await supabase
+    .from("student")
+    .select("id, full_name, dojo_id, must_change_password")
+    .eq("user_id", user.id)
+    .maybeSingle()
 
-    if (alumnoError) {
-      console.error("Error consultando alumno:", alumnoError)
-      return { user, mustChangePassword: false }
+  if (studentRow) {
+    return {
+      user,
+      role: "student",
+      isHead: false,
+      mustChangePassword: studentRow.must_change_password,
+      fullName: studentRow.full_name,
+      dojoId: studentRow.dojo_id,
     }
-
-    return { user, mustChangePassword: alumnoRow.must_change_password }
   }
 
-  // 4. Asociación no usa flag
-  return { user, mustChangePassword: false }
+  // 4. Si no está en sensei ni student → asociación
+  return {
+    user,
+    role: "asociacion",
+    isHead: false,
+    mustChangePassword: false,
+    fullName: "Asociación Argentina de Karate",
+    dojoId: null,
+  }
 }

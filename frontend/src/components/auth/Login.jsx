@@ -1,32 +1,23 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Mail, Lock } from "lucide-react"
-import bgSensei from "../../assets/bg-sensei.jpg"
-import bgStudent from "../../assets/bg-student.jpg"
-import bgAsociacion from "../../assets/bg-asociacion.jpg"
+import backgroundJpg from "../../assets/fondo.jpg"
 import { BackButton } from "../common/BackButton"
 
 export function Login({ onLogin }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [role, setRole] = useState("sensei")
   const navigate = useNavigate()
-
-  const backgrounds = {
-    sensei: bgSensei,
-    student: bgStudent,
-    asociacion: bgAsociacion
-  }
 
   const handleSubmit = e => {
     e.preventDefault()
-    onLogin(email, password, role)
+    onLogin(email, password)
   }
 
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center transition-all duration-500"
-      style={{ backgroundImage: `url(${backgrounds[role]})` }}
+      style={{ backgroundImage: `url(${backgroundJpg})` }} 
     >
       <div className="absolute inset-0 bg-black/30" />
       <div className="relative w-full max-w-md px-4">
@@ -43,11 +34,9 @@ export function Login({ onLogin }) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-
             {/* EMAIL */}
             <div className="relative">
               <Mail className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-
               <input
                 type="email"
                 id="email"
@@ -65,7 +54,6 @@ export function Login({ onLogin }) {
                   focus:border-[#a01830]
                 "
               />
-
               <label
                 htmlFor="email"
                 className="
@@ -84,10 +72,10 @@ export function Login({ onLogin }) {
                 Email
               </label>
             </div>
+
             {/* PASSWORD */}
             <div className="relative">
               <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-
               <input
                 type="password"
                 id="password"
@@ -105,7 +93,6 @@ export function Login({ onLogin }) {
                   focus:border-[#a01830]
                 "
               />
-
               <label
                 htmlFor="password"
                 className="
@@ -135,30 +122,15 @@ export function Login({ onLogin }) {
               </button>
             </div>
 
-            {/* ROLES */}
-            <div className="flex justify-between text-sm text-gray-700">
-              {["sensei", "student", "asociacion"].map(r => (
-                <label key={r} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value={r}
-                    checked={role === r}
-                    onChange={e => setRole(e.target.value)}
-                    className="accent-[#c41e3a]"
-                  />
-                  <span className="capitalize">{r}</span>
-                </label>
-              ))}
+            {/* ESPACIO antes del botón */}
+            <div className="mt-8">
+              <button
+                type="submit"
+                className="w-full bg-[#c41e3a] text-white py-3 hover:bg-[#a01830] transition tracking-widest text-sm"
+              >
+                INGRESAR
+              </button>
             </div>
-
-            {/* BOTÓN */}
-            <button
-              type="submit"
-              className="w-full mt-4 bg-[#c41e3a] text-white py-3 hover:bg-[#a01830] transition tracking-widest text-sm"
-            >
-              INGRESAR
-            </button>
           </form>
         </div>
       </div>
