@@ -1,29 +1,14 @@
 import { useEffect, useState } from "react"
+import { getDojoNotifications } from "../../queries/dojoQueries"
 import { supabase } from "../../supabaseClient"
-import { Bell, Calendar, MapPin, X } from "lucide-react"
+import { Bell, Calendar, Paperclip } from "lucide-react"
 import dayjs from "dayjs"
 
 export function StudentNotifications() {
   const [student, setStudent] = useState(null)
   const [dojo, setDojo] = useState(null)
-  const [exams, setExams] = useState([])
+  const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [selectedExam, setSelectedExam] = useState(null)
-  const [enrolling, setEnrolling] = useState(false)
-
-  const grades = [
-    "Blanco", "Amarillo", "Naranja", "Verde", "Azul", "Marrón", "Negro",
-    "1er Dan", "2do Dan", "3er Dan", "4to Dan", "5to Dan",
-    "6to Dan", "7mo Dan", "8vo Dan", "9no Dan"
-  ]
-
-  const getNextGrade = (current) => {
-    const idx = grades.findIndex(
-      g => g.toLowerCase() === current?.toLowerCase()
-    )
-    return idx >= 0 && idx < grades.length - 1 ? grades[idx + 1] : current
-  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,7 +20,7 @@ export function StudentNotifications() {
 
       const { data: studentData } = await supabase
         .from("student")
-        .select("id, current_belt, dojo_id")
+        .select("id, dojo_id")
         .eq("user_id", user.id)
         .single()
 
@@ -49,164 +34,64 @@ export function StudentNotifications() {
         .single()
       setDojo(dojoData)
 
-      const { data: examData } = await supabase
-        .from("exam")
-        .select(`
-          id,
-          exam_date,
-          created_at,
-          observations,
-          location_dojo:location_dojo_id(name)
-        `)
-        .eq("dojo_id", studentData.dojo_id)
-        .order("exam_date", { ascending: true })
+      const notifData = await getDojoNotifications(studentData.dojo_id)
+      setNotifications(notifData)
 
-      setExams(examData || [])
       setLoading(false)
     }
 
     fetchData()
   }, [])
 
-  const handleConfirmEnroll = async () => {
-    if (!student?.id || !selectedExam) return
-    setEnrolling(true)
-
-    const nextBelt = getNextGrade(student.current_belt)
-
-    const { error } = await supabase
-      .from("exam_enrollment")
-      .insert({
-        exam_id: selectedExam.id,
-        student_id: student.id,
-        belt: nextBelt,
-      })
-
-    setEnrolling(false)
-    setShowConfirm(false)
-    setSelectedExam(null)
-
-    if (error) {
-      console.error("Error en inscripción:", error.message)
-      alert("No se pudo inscribir. Verificá si ya estabas inscripto.")
-    } else {
-      alert("Inscripción realizada con éxito.")
-    }
-  }
-
   if (loading) return <div className="p-8 text-gray-500">Cargando notificaciones…</div>
-  if (!student || !dojo) return <div className="p-8 text-gray-500">No se pudo cargar las notificaciones.</div>
 
   return (
     <div className="p-8 space-y-8">
-      <h2 className="text-[#1a1a1a] text-2xl font-semibold">Notificaciones</h2>
+      <h2 className="text-[#1a1a1a] text-2xl font-semibold">Notificaciones del dojo</h2>
 
       <div className="space-y-4">
-        {exams.length === 0 ? (
-          <p className="text-gray-500">No hay exámenes en tu dojo.</p>
+        {notifications.length === 0 ? (
+          <p className="text-gray-500">No hay notificaciones en tu dojo.</p>
         ) : (
-          exams.map((e) => {
-            const examDate = dayjs(e.exam_date)
-            const isPast = examDate.isBefore(dayjs(), "day")
-
-            return (
-              <div key={e.id} className="bg-white shadow-md p-4 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-[#c41e3a]" />
-                    <span className="font-medium">
-                      Examen en {e.location_dojo?.name || dojo.name}
-                    </span>
-                  </div>
-                  <div className="flex flex-col text-gray-700 text-sm items-end">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>{examDate.format("DD/MM/YYYY")}</span>
-                    </div>
-                    <span className="text-gray-500">
-                      Notificado: {dayjs(e.created_at).format("DD/MM/YYYY HH:mm")}
-                    </span>
-                  </div>
+          notifications.map((n) => (
+            <div key={n.id} className="bg-white shadow-md p-4 rounded-lg">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Bell className="w-5 h-5 text-[#c41e3a]" />
+                  <span className="font-medium">{n.title}</span>
                 </div>
-
-                {e.observations && (
-                  <p className="mt-2 text-sm text-gray-600">{e.observations}</p>
-                )}
-
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <MapPin className="w-4 h-4" />
-                    <span>Sede: {e.location_dojo?.name || "Sede del dojo"}</span>
-                  </div>
-                  <button
-                    className={`px-4 py-2 rounded transition-colors ${
-                      isPast
-                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                        : "bg-[#c41e3a] text-white hover:bg-[#a01830]"
-                    }`}
-                    disabled={isPast}
-                    onClick={() => {
-                      if (!isPast) {
-                        setSelectedExam(e)
-                        setShowConfirm(true)
-                      }
-                    }}
-                  >
-                    {isPast ? "Examen finalizado" : "Inscribirme"}
-                  </button>
+                <div className="flex items-center gap-2 text-gray-700 text-sm">
+                  <Calendar className="w-4 h-4" />
+                  <span>{dayjs(n.created_at).format("DD/MM/YYYY HH:mm")}</span>
                 </div>
               </div>
-            )
-          })
-        )}
-      </div>
 
-      {/* MODAL DE CONFIRMACIÓN */}
-      {showConfirm && selectedExam && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white shadow-lg w-full max-w-lg rounded-lg overflow-hidden">
-            {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-200">
-              <h3 className="text-[#1a1a1a] text-lg">Confirmar inscripción</h3>
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+              <p className="mt-2 text-sm text-gray-700">{n.body}</p>
 
-            {/* Info */}
-            <div className="p-6 space-y-4">
-              <p>
-                ¿Está seguro que quiere inscribirse al examen del{" "}
-                <strong>{dayjs(selectedExam.exam_date).format("DD/MM/YYYY")}</strong>{" "}
-                en el dojo{" "}
-                <strong>{selectedExam.location_dojo?.name || dojo.name}</strong>{" "}
-                para rendir el cinturón{" "}
-                <strong>{getNextGrade(student.current_belt)}</strong>?
+              {n.attachments && n.attachments.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2 text-sm text-gray-600">
+                  {n.attachments.map((file, idx) => (
+                    <a
+                      key={idx}
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                      {file.type === "pdf" ? "Documento PDF" : "Imagen"}
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              <p className="mt-2 text-xs text-gray-500">
+                Remitente: {n.sender?.full_name || "Sensei"}
               </p>
             </div>
-
-            {/* Botones */}
-            <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="px-8 py-3 bg-gray-400 text-white hover:bg-gray-500 transition-colors rounded-md"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmEnroll}
-                disabled={enrolling}
-                className="px-8 py-3 bg-[#c41e3a] text-white hover:bg-[#a01830] transition-colors rounded-md"
-              >
-                {enrolling ? "Inscribiendo..." : "Confirmar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   )
 }

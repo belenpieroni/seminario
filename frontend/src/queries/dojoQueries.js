@@ -2,7 +2,7 @@
 import { supabase } from '../supabaseClient';
 
 export async function getDojos() {
-  // 1️⃣ Traer los dojos activos
+  // Traer los dojos activos
   const { data: dojos, error } = await supabase
     .from("dojo")
     .select("id, name, head_sensei_id")
@@ -205,3 +205,24 @@ export async function deleteDojo(dojoId) {
   if (error) throw error;
 }
 
+// Traer notificaciones del dojo
+export async function getDojoNotifications(dojoId) {
+  const { data, error } = await supabase
+    .from("notification")
+    .select(`
+      id,
+      title,
+      body,
+      created_at,
+      attachments,
+      sender:sensei!notification_sender_id_fkey(full_name)
+    `)
+    .eq("dojo_id", dojoId)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching notifications:", error.message)
+    return []
+  }
+  return data || []
+}

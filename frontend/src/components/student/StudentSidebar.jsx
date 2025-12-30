@@ -1,4 +1,4 @@
-import { LayoutDashboard, Bell, Award, User, LogOut } from "lucide-react"
+import { LayoutDashboard, Bell, Award, User, LogOut, ClipboardList } from "lucide-react"
 import { useNavigate, useLocation } from "react-router-dom"
 
 export function StudentSidebar({ onLogout }) {
@@ -9,6 +9,7 @@ export function StudentSidebar({ onLogout }) {
   const menuItems = [
     { path: "/student/dashboard", label: "Mi dojo", icon: LayoutDashboard },
     { path: "/student/notifications", label: "Notificaciones", icon: Bell },
+    { path: "/student/exams", label: "Exámenes", icon: ClipboardList },
     { path: "/student/progress", label: "Mi progreso", icon: User },
     { path: "/student/certificados", label: "Mis certificados", icon: Award },
   ]

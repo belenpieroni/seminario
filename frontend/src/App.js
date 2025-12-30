@@ -19,11 +19,14 @@ import AdminCreateDojo from "./components/admin/AdminCreateDojo"
 import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
 import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
 import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
+import { SenseiExams } from "./components/sensei/SenseiExams"
+import { SenseiNotifications } from "./components/sensei/SenseiNotifications"
 import SenseiExamList from "./components/sensei/SenseiExamList"
 import DojoSenseis from "./components/sensei/DojoSenseis"
 //Imports componentes student
 import { StudentSidebar } from "./components/student/StudentSidebar"
 import { StudentDashboard } from "./components/student/StudentDashboard"
+import { StudentExams } from "./components/student/StudentExams"
 import StudentProgress from "./components/student/StudentProgress"
 import { StudentNotifications } from "./components/student/StudentNotifications"
 //Import utils
@@ -162,13 +165,16 @@ export default function App() {
                 <Route path="/sensei/dashboard" element={<SenseiDashboard />} />
                 <Route path="/sensei/students" element={<SenseiStudentList />} />
                 <Route path="/sensei/senseis" element={<DojoSenseis />} />
-                <Route path="/sensei/exams" element={<SenseiExamList />} />
+                <Route path="/sensei/manage-exams" element={<SenseiExamList />} />
+                <Route path="/sensei/exams" element={<SenseiExams />} />
+                <Route path="/sensei/notifications" element={<SenseiNotifications />} />
 
                 {/* STUDENT */}
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
                 <Route path="/student/progress" element={<StudentProgress />} />
                 <Route path="/student/notifications" element={<StudentNotifications />} />
                 <Route path="/student/certificados" element={<StudentDashboard />} />
+                <Route path="/student/exams" element={<StudentExams />} />
 
                 {/* ADMIN / ASOCIACIÓN */}
                 <Route path="/admin/dashboard" element={<AdminDojoList />} />
