@@ -120,79 +120,88 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white shadow-lg w-full max-w-lg rounded-lg overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white shadow-2xl border border-gray-200 w-full max-w-lg flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h3 className="text-[#1a1a1a] text-lg">Registrar Resultado</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a]">
+            Registrar <span className="text-[#c41e3a]">Resultado</span>
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-[#c41e3a] transition-colors"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Subtítulo */}
-        <div className="px-6 text-gray-700 text-sm italic">
-          Está cargando las notas del alumno <strong>{studentName}</strong> 
-          para cinturón <strong>{enrollment.belt}</strong>
+        <div className="px-6 py-3 text-gray-700 text-sm italic border-b border-gray-100">
+          Está cargando las notas del alumno{" "}
+          <strong>{studentName}</strong> para cinturón{" "}
+          <strong>{enrollment.belt}</strong>
         </div>
 
         {/* Formulario */}
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          {["Kata", "Kumite", "Kihon", "Nota Final"].map((label, idx) => {
+            const value = [kata, kumite, kihon, finalGrade][idx]
+            const setter = [setKata, setKumite, setKihon, setFinalGrade][idx]
+            return (
+              <div key={label}>
+                <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+                  {label}
+                </label>
+                <select
+                  value={value}
+                  onChange={(e) => setter(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
+                  disabled={alreadySubmitted}
+                >
+                  <option value="">Seleccionar nota</option>
+                  {gradeOptions.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+              </div>
+            )
+          })}
+
           <div>
-            <label>Kata</label>
-            <select value={kata} onChange={(e) => setKata(e.target.value)} className="w-full border p-2" disabled={alreadySubmitted}>
-              <option value="">Seleccionar nota</option>
-              {gradeOptions.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
+            <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+              Observaciones
+            </label>
+            <textarea
+              value={observations}
+              onChange={(e) => setObservations(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none min-h-[100px]"
+              disabled={alreadySubmitted}
+            />
           </div>
-          <div>
-            <label>Kumite</label>
-            <select value={kumite} onChange={(e) => setKumite(e.target.value)} className="w-full border p-2" disabled={alreadySubmitted}>
-              <option value="">Seleccionar nota</option>
-              {gradeOptions.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label>Kihon</label>
-            <select value={kihon} onChange={(e) => setKihon(e.target.value)} className="w-full border p-2" disabled={alreadySubmitted}>
-              <option value="">Seleccionar nota</option>
-              {gradeOptions.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label>Nota Final</label>
-            <select value={finalGrade} onChange={(e) => setFinalGrade(e.target.value)} className="w-full border p-2" disabled={alreadySubmitted}>
-              <option value="">Seleccionar nota</option>
-              {gradeOptions.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label>Observaciones</label>
-            <textarea value={observations} onChange={(e) => setObservations(e.target.value)} className="w-full border p-2" disabled={alreadySubmitted} />
-          </div>
+
           <div className="flex items-center gap-2">
-            <input type="checkbox" checked={present} onChange={(e) => setPresent(e.target.checked)} disabled={alreadySubmitted} />
-            <span>Presente</span>
+            <input
+              type="checkbox"
+              checked={present}
+              onChange={(e) => setPresent(e.target.checked)}
+              disabled={alreadySubmitted}
+            />
+            <span className="text-sm text-gray-700">Presente</span>
           </div>
         </div>
 
-        {/* Botones */}
-        <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
-          <button onClick={onClose} className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+        {/* Footer */}
+        <div className="flex justify-end gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 bg-gray-300 text-[#1a1a1a] uppercase text-xs tracking-wide hover:bg-gray-400 transition-colors"
+          >
             Cerrar
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading || alreadySubmitted}
-            className={`px-6 py-2 rounded text-white ${
+            className={`px-6 py-2 uppercase text-xs tracking-wide text-white transition-colors ${
               alreadySubmitted
                 ? "bg-gray-300 cursor-not-allowed"
                 : "bg-[#c41e3a] hover:bg-[#a01830]"

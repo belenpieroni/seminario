@@ -26,51 +26,56 @@ export default function SenseiExamDetail({ examId, onBack }) {
     <div className="p-8">
       <BackButton onBack={onBack} />
 
-      <h2 className="text-2xl font-semibold mb-6">Detalle del Examen</h2>
+      <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a] mb-6">
+        Detalle del <span className="text-[#c41e3a]">Examen</span>
+      </h2>
 
-      <div className="flex items-center gap-4 mb-4 text-gray-700">
+      <div className="flex items-center gap-3 mb-4 text-gray-700">
         <Calendar className="w-5 h-5 text-[#c41e3a]" />
-        <span>{exam.date}</span>
+        <span className="font-medium">{exam.date}</span>
       </div>
 
-      <div className="flex items-center gap-4 mb-4 text-gray-700">
+      <div className="flex items-center gap-3 mb-6 text-gray-700">
         <MapPin className="w-5 h-5 text-[#c41e3a]" />
-        <span>Sede: {exam.locationDojo}</span>
+        <span className="font-medium">Sede: {exam.locationDojo}</span>
       </div>
 
-      <h3 className="text-xl font-medium mb-4">
-        Alumnos Inscriptos: {exam.enrollments.length}
+      <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a] mb-4">
+        Alumnos Inscriptos:{" "}
+        <span className="text-[#c41e3a] font-semibold">{exam.enrollments.length}</span>
       </h3>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-100 text-left">
-            <th className="p-2">Nombre</th>
-            <th className="p-2">Dojo</th>
-            <th className="p-2">Cinturón actual</th>
-            <th className="p-2">Cinturón a rendir</th>
-            <th className="p-2">Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {exam.enrollments.map((enr) => (
-            <tr key={enr.id} className="border-b">
-              <td className="p-2">{enr.studentName}</td>
-              <td className="p-2">{enr.studentDojo}</td>
-              <td className="p-2">{enr.currentBelt}</td>
-              <td className="p-2">{enr.beltToRender}</td>
-              <td className="p-2">
+      <div className="bg-white shadow-lg border border-gray-200 overflow-hidden">
+        <table className="w-full border-collapse">
+          <thead className="bg-[#1a1a1a] text-white uppercase tracking-wide text-xs">
+            <tr className="text-left">
+              <th className="px-4 py-3 text-left">Nombre</th>
+              <th className="px-4 py-3 text-left">Dojo</th>
+              <th className="px-4 py-3 text-left">Cinturón actual</th>
+              <th className="px-4 py-3 text-left">Cinturón a rendir</th>
+              <th className="px-4 py-3 text-left">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {exam.enrollments.map((enr) => (
+              <tr key={enr.id} className="border-b">
+                <td className="p-2">{enr.studentName}</td>
+                <td className="p-2">{enr.studentDojo}</td>
+                <td className="p-2">{enr.currentBelt}</td>
+                <td className="p-2">{enr.beltToRender}</td>
+                <td className="px-6 py-4">
                 <button
                   onClick={() => setSelectedEnrollment(enr)}
-                  className="bg-[#c41e3a] text-white p-2 rounded hover:bg-[#a01830]"
+                  className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Modal del formulario de resultados */}
       {selectedEnrollment && (

@@ -199,105 +199,111 @@ export function SenseiStudentList() {
 
   return (
     <div className="p-8">
-      <h2 className="text-2xl font-semibold mb-8">Alumnos del dojo</h2>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a]">
+          Alumnos <span className="text-[#c41e3a]">del Dojo</span>
+        </h2>
+      </div>
 
       {/* Formulario agregar alumno */}
       {showAddForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h3 className="text-lg font-semibold mb-4">Nuevo alumno</h3>
+        <div className="bg-white shadow-lg border border-gray-200 p-6 mb-8">
+          <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a] mb-6">
+            Nuevo <span className="text-[#c41e3a]">Alumno</span>
+          </h3>
 
           <div className="space-y-6">
             <div>
-              <label className="block mb-2">Nombre y apellido</label>
+              <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+                Nombre y apellido
+              </label>
               <input
-                className="w-full px-4 py-3 border"
+                className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={newStudent.full_name}
-                onChange={e =>
-                  setNewStudent({ ...newStudent, full_name: e.target.value })
-                }
+                onChange={e => setNewStudent({ ...newStudent, full_name: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="block mb-2">Fecha de nacimiento</label>
+              <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+                Fecha de nacimiento
+              </label>
               <input
                 type="date"
-                className="w-full px-4 py-3 border"
+                className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={newStudent.birth_date}
-                onChange={e =>
-                  setNewStudent({ ...newStudent, birth_date: e.target.value })
-                }
+                onChange={e => setNewStudent({ ...newStudent, birth_date: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="block mb-2">Cinturón</label>
+              <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+                Cinturón
+              </label>
               <select
-                className="w-full px-4 py-3 border"
+                className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={newStudent.current_belt}
-                onChange={e =>
-                  setNewStudent({ ...newStudent, current_belt: e.target.value })
-                }
+                onChange={e => setNewStudent({ ...newStudent, current_belt: e.target.value })}
               >
                 <option value="">Seleccionar cinturón</option>
                 {belts.map(belt => (
-                  <option key={belt} value={belt}>
-                    {belt}
-                  </option>
+                  <option key={belt} value={belt}>{belt}</option>
                 ))}
               </select>
             </div>
 
             {/* Aviso con email y contraseña inicial */}
-            <div className="bg-orange-50 border p-4">
-              Email:{" "}
-              <strong>
-                {newStudent.full_name && dojo?.name
-                  ? generatedEmail(newStudent.full_name, dojo.name)
-                  : "nombreapellido@nombredojo.com"}
-              </strong>
-              <br />
-              Contraseña inicial: <strong>dojo2025</strong>
+            <div className="bg-orange-50 border p-4 text-sm text-orange-900">
+              <p>
+                Email:{" "}
+                <strong>
+                  {newStudent.full_name && dojo?.name
+                    ? generatedEmail(newStudent.full_name, dojo.name)
+                    : "nombreapellido@nombredojo.com"}
+                </strong>
+              </p>
+              <p>
+                Contraseña inicial: <strong>dojo2025</strong>
+              </p>
             </div>
 
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-end gap-4 mt-6">
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-6 py-3 bg-gray-300 rounded-lg"
+                className="px-6 py-2 bg-gray-300 text-[#1a1a1a] uppercase text-xs tracking-wide hover:bg-gray-400 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={() => setShowConfirm(true)}
-                className="px-6 py-3 bg-[#c41e3a] text-white rounded-lg hover:bg-[#a01830]"
+                className="px-6 py-2 bg-[#c41e3a] text-white uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
               >
                 Crear alumno
               </button>
             </div>
-            </div>
-            </div>
-            )}
+          </div>
+        </div>
+      )}
 
-            
+            {/* Botones agregar/filtros */}
             <div className="flex items-center justify-between mb-8">
               {!showAddForm && (
                 <div className="mt-6">
-                  {/* Botón agregar alumno */}
                   <button
                     onClick={() => setShowAddForm(true)}
-                    className="flex items-center gap-2 bg-[#c41e3a] text-white px-4 py-2 rounded hover:bg-[#a01830]"
+                    className="flex items-center gap-2 bg-[#c41e3a] text-white px-4 py-2 uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
                   >
                     <Plus className="w-4 h-4" /> Agregar alumno
                   </button>
                 </div>
               )}
-              {/* Botón para abrir/cerrar filtros */}
               <div className="mt-6">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="px-4 py-2 bg-[#c41e3a] text-white rounded-lg hover:bg-[#a01830]"
+                  className="px-4 py-2 bg-[#c41e3a] text-white uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
                 >
                   Filtros
                 </button>
@@ -306,32 +312,32 @@ export function SenseiStudentList() {
 
             {/* Aside de filtros */}
             {showFilters && (
-              <aside className="fixed right-0 top-0 h-full w-80 bg-white shadow-lg p-6 overflow-y-auto z-50">
-                {/* Header con título y cruz */}
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">Filtros</h2>
+              <aside className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl border-l border-gray-200 p-6 overflow-y-auto z-50">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-3">
+                  <h2 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a]">Filtros</h2>
                   <button
                     onClick={() => setShowFilters(false)}
-                    className="text-gray-500 hover:text-red-600"
+                    className="text-gray-500 hover:text-[#c41e3a] transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                {/* Filtrar por nombre y apellido */}
+                {/* Filtrar por nombre */}
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">Filtrar por nombre y apellido</h3>
+                    <h3 className="font-medium uppercase tracking-wide text-sm">Nombre y apellido</h3>
                     <button
                       onClick={() => setFilters({ ...filters, name: "" })}
-                      className="text-gray-500 hover:text-red-600"
+                      className="text-gray-500 hover:text-[#c41e3a]"
                     >
                       <Trash className="w-5 h-5" />
                     </button>
                   </div>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                     placeholder="Ingresar nombre o apellido"
                     value={filters.name}
                     onChange={e => setFilters({ ...filters, name: e.target.value })}
@@ -341,17 +347,17 @@ export function SenseiStudentList() {
                 {/* Filtrar por edad */}
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">Filtrar por edad</h3>
+                    <h3 className="font-medium uppercase tracking-wide text-sm">Edad</h3>
                     <button
                       onClick={() => setFilters({ ...filters, age: "", ageCondition: "exact" })}
-                      className="text-gray-500 hover:text-red-600"
+                      className="text-gray-500 hover:text-[#c41e3a]"
                     >
                       <Trash className="w-5 h-5" />
                     </button>
                   </div>
                   <div className="flex gap-2">
                     <select
-                      className="px-3 py-2 border rounded-lg"
+                      className="px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                       value={filters.ageCondition}
                       onChange={e => setFilters({ ...filters, ageCondition: e.target.value })}
                     >
@@ -361,7 +367,7 @@ export function SenseiStudentList() {
                     </select>
                     <input
                       type="number"
-                      className="w-full px-3 py-2 border rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                       placeholder="Edad"
                       value={filters.age}
                       onChange={e => setFilters({ ...filters, age: e.target.value })}
@@ -372,17 +378,19 @@ export function SenseiStudentList() {
                 {/* Filtrar por cinturón */}
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">Filtrar por cinturón</h3>
+                    <h3 className="font-medium uppercase tracking-wide text-sm">Cinturón</h3>
                     <button
                       onClick={() => setFilters({ ...filters, belt: "", beltCondition: "exact" })}
-                      className="text-gray-500 hover:text-red-600"
+                      className="text-gray-500 hover:text-[#c41e3a]"
                     >
                       <Trash className="w-5 h-5" />
                     </button>
                   </div>
+
                   <div className="flex gap-2">
+                    {/* Condición */}
                     <select
-                      className="px-3 py-2 border rounded-lg"
+                      className="px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                       value={filters.beltCondition}
                       onChange={e => setFilters({ ...filters, beltCondition: e.target.value })}
                     >
@@ -390,8 +398,10 @@ export function SenseiStudentList() {
                       <option value="menor">Menor que</option>
                       <option value="mayor">Mayor que</option>
                     </select>
+
+                    {/* Cinturón */}
                     <select
-                      className="w-full px-3 py-2 border rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                       value={filters.belt}
                       onChange={e => setFilters({ ...filters, belt: e.target.value })}
                     >
@@ -402,117 +412,83 @@ export function SenseiStudentList() {
                     </select>
                   </div>
                 </div>
-
-                {/* Filtrar por fecha de último examen */}
-                <div className="mb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">Filtrar por fecha de último examen</h3>
-                    <button
-                      onClick={() =>
-                        setFilters({ ...filters, examDate: "", examStart: "", examEnd: "" })
-                      }
-                      className="text-gray-500 hover:text-red-600"
-                    >
-                      <Trash className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border rounded-lg"
-                      value={filters.examDate}
-                      onChange={e => setFilters({ ...filters, examDate: e.target.value })}
-                    />
-                    <div className="flex gap-2">
-                      <input
-                        type="date"
-                        className="w-full px-3 py-2 border rounded-lg"
-                        value={filters.examStart}
-                        onChange={e => setFilters({ ...filters, examStart: e.target.value })}
-                      />
-                      <input
-                        type="date"
-                        className="w-full px-3 py-2 border rounded-lg"
-                        value={filters.examEnd}
-                        onChange={e => setFilters({ ...filters, examEnd: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                </div>
               </aside>
             )}
-
-          {/* Tabla de alumnos */}
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-[#1a1a1a] text-white">
-                <tr>
-                  <th className="px-6 py-4 text-left">Nombre y Apellido</th>
-                  <th className="px-6 py-4 text-left">Edad</th>
-                  <th className="px-6 py-4 text-left">Cinturón</th>
-                  <th className="px-6 py-4 text-left">Último examen</th>
-                  <th className="px-6 py-4 text-left">Detalle</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.length === 0 ? (
+            {/* Tabla de alumnos */}
+            <div className="bg-white shadow-lg border border-gray-200 overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-[#1a1a1a] text-white uppercase tracking-wide text-sm">
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-gray-500 text-center">
-                      No hay alumnos registrados
-                    </td>
+                    <th className="px-6 py-4 text-left">Nombre y Apellido</th>
+                    <th className="px-6 py-4 text-left">Edad</th>
+                    <th className="px-6 py-4 text-left">Cinturón</th>
+                    <th className="px-6 py-4 text-left">Último examen</th>
+                    <th className="px-6 py-4 text-left">Detalle</th>
                   </tr>
-                ) : (
-                  filteredStudents.map(student => (
-                    <tr key={student.id} className="border-b hover:bg-gray-50">
-                      <td className="px-6 py-4">{student.full_name}</td>
-                      <td className="px-6 py-4">
-                        {student.birth_date
-                          ? Math.floor(
-                              (Date.now() - new Date(student.birth_date).getTime()) /
-                                (1000 * 60 * 60 * 24 * 365.25)
-                            )
-                          : "-"}
-                      </td>
-                      <td className="px-6 py-4">{student.current_belt}</td>
-                      <td className="px-6 py-4">
-                        {student.last_exam_date
-                          ? new Date(student.last_exam_date).toLocaleDateString("es-AR")
-                          : "-"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => setSelectedStudent(student)}
-                          className="text-[#c41e3a] border border-[#c41e3a] px-4 py-2 rounded hover:bg-[#c41e3a] hover:text-white flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                </thead>
+                <tbody>
+                  {filteredStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-4 text-gray-500 text-center italic">
+                        No hay alumnos registrados
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    filteredStudents.map(student => (
+                      <tr key={student.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="px-6 py-4">{student.full_name}</td>
+                        <td className="px-6 py-4">
+                          {student.birth_date
+                            ? Math.floor(
+                                (Date.now() - new Date(student.birth_date).getTime()) /
+                                  (1000 * 60 * 60 * 24 * 365.25)
+                              )
+                            : "-"}
+                        </td>
+                        <td className="px-6 py-4">{student.current_belt}</td>
+                        <td className="px-6 py-4">
+                          {student.last_exam_date
+                            ? new Date(student.last_exam_date).toLocaleDateString("es-AR")
+                            : "-"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => setSelectedStudent(student)}
+                            className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Ver
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-          {/* Modal de detalle */}
-          {selectedStudent && (
-            <StudentManageModal
-              studentId={selectedStudent.id}
-              dojoId={dojo.id}
-              onClose={() => setSelectedStudent(null)}
-              onSave={handleUpdatedStudent}
-            />
-          )}
+            {/* Modal de detalle */}
+            {selectedStudent && (
+              <StudentManageModal
+                studentId={selectedStudent.id}
+                dojoId={dojo.id}
+                onClose={() => setSelectedStudent(null)}
+                onSave={handleUpdatedStudent}
+              />
+            )}
+
             {/* Modal de confirmación */}
             {showConfirm && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg">
+                <div className="bg-white shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
                   {/* Header */}
-                  <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                    <h3 className="text-[#1a1a1a] text-lg">Confirmar creación de alumno</h3>
+                  <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a]">
+                      Confirmar creación de alumno
+                    </h3>
                     <button
                       onClick={() => setShowConfirm(false)}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="text-gray-500 hover:text-gray-700 transition-colors"
                     >
                       <X className="w-6 h-6" />
                     </button>
@@ -521,23 +497,25 @@ export function SenseiStudentList() {
                   {/* Información del alumno */}
                   <div className="p-6 space-y-6">
                     <div>
-                      <h4 className="text-[#1a1a1a] mb-4 font-semibold">Información del alumno</h4>
-                      <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                      <h4 className="text-[#1a1a1a] mb-4 font-medium uppercase tracking-wide">
+                        Información del alumno
+                      </h4>
+                      <div className="space-y-2 bg-gray-50 p-4 border border-gray-200">
                         <div className="flex">
                           <span className="text-gray-600 w-40">Nombre:</span>
-                          <span className="text-[#1a1a1a]">{newStudent.full_name}</span>
+                          <span className="text-[#1a1a1a] font-medium">{newStudent.full_name}</span>
                         </div>
                         <div className="flex">
                           <span className="text-gray-600 w-40">Fecha de nacimiento:</span>
-                          <span className="text-[#1a1a1a]">{newStudent.birth_date}</span>
+                          <span className="text-[#1a1a1a] font-medium">{newStudent.birth_date}</span>
                         </div>
                         <div className="flex">
                           <span className="text-gray-600 w-40">Cinturón:</span>
-                          <span className="text-[#1a1a1a]">{newStudent.current_belt}</span>
+                          <span className="text-[#1a1a1a] font-medium">{newStudent.current_belt}</span>
                         </div>
                         <div className="flex">
                           <span className="text-gray-600 w-40">Email:</span>
-                          <span className="text-[#1a1a1a]">
+                          <span className="text-[#1a1a1a] font-medium">
                             {newStudent.full_name && dojo?.name
                               ? generatedEmail(newStudent.full_name, dojo.name)
                               : "nombreapellido@nombredojo.com"}
@@ -545,30 +523,30 @@ export function SenseiStudentList() {
                         </div>
                         <div className="flex">
                           <span className="text-gray-600 w-40">Contraseña inicial:</span>
-                          <span className="text-[#1a1a1a]">dojo2025</span>
+                          <span className="text-[#1a1a1a] font-medium">dojo2025</span>
                         </div>
                       </div>
                     </div>
                   </div>
                   
                   {/* Botones */}
-                  <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
+                  <div className="flex justify-end gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
                     <button
                       onClick={() => setShowConfirm(false)}
-                      className="px-6 py-3 bg-gray-300 rounded-lg"
+                      className="px-6 py-2 bg-gray-300 text-[#1a1a1a] uppercase text-xs tracking-wide hover:bg-gray-400 transition-colors"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={handleConfirmAdd}
-                      className="px-6 py-3 bg-[#c41e3a] text-white rounded-lg hover:bg-[#a01830]"
+                      className="px-6 py-2 bg-[#c41e3a] text-white uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
                     >
                       Confirmar creación
                     </button>
                   </div>
                 </div>
               </div>    
-          )}
+            )}
     </div>
   )
 }

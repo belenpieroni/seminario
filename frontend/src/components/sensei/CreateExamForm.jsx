@@ -100,69 +100,83 @@ export default function CreateExamForm({ senseiId, dojoId, onExamCreated, onBack
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white shadow-md">
+    <form
+        onSubmit={handleSubmit}
+        className="space-y-6 p-6 bg-white shadow-lg border border-gray-200"
+    >
         <BackButton onBack={onBack} />
+
+        {/* Fecha del examen */}
         <div>
-            <label className="block mb-2">Fecha del examen</label>
-            <input
+        <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+            Fecha del examen
+        </label>
+        <input
             type="date"
             value={examDate}
             onChange={(e) => setExamDate(e.target.value)}
-            className="w-full px-4 py-3 border"
+            className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
             required
-            />
+        />
         </div>
 
+        {/* Dojo */}
         <div className="relative">
-            <label className="block text-sm font-medium text-gray-700">Dojo</label>
-            <Combobox value={locationDojo} onChange={setLocationDojo}>
+        <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+            Dojo
+        </label>
+        <Combobox value={locationDojo} onChange={setLocationDojo}>
             <Combobox.Input
-                className="w-full px-4 py-3 border"
-                displayValue={(dojo) => dojo?.name || ""}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar dojo..."
+            className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
+            displayValue={(dojo) => dojo?.name || ""}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar dojo..."
             />
 
-            <Combobox.Options className="absolute z-10 mt-1 w-full bg-white border shadow-lg max-h-60 overflow-auto">
-                {filteredDojos.length === 0 && (
-                <div className="p-3 text-gray-500">No hay resultados</div>
-                )}
+            <Combobox.Options className="absolute z-10 mt-1 w-full bg-white border border-gray-200 shadow-lg max-h-60 overflow-auto">
+            {filteredDojos.length === 0 && (
+                <div className="p-3 text-gray-500 italic">No hay resultados</div>
+            )}
 
-                {filteredDojos.map(dojo => (
+            {filteredDojos.map((dojo) => (
                 <Combobox.Option
-                    key={dojo.id}
-                    value={dojo}  
-                    className={({ active }) =>
+                key={dojo.id}
+                value={dojo}
+                className={({ active }) =>
                     `cursor-pointer px-4 py-2 ${
-                        active ? "bg-[#c41e3a] text-white" : ""
+                    active ? "bg-[#c41e3a] text-white" : "text-[#1a1a1a]"
                     }`
-                    }
+                }
                 >
-                    {dojo.name} — Sensei: {dojo.senseiInCharge}
+                {dojo.name} — Sensei: {dojo.senseiInCharge}
                 </Combobox.Option>
-                ))}
+            ))}
             </Combobox.Options>
-            </Combobox>
+        </Combobox>
         </div>
 
+        {/* Observaciones */}
         <div>
-            <label className="block text-sm font-medium text-gray-700">
+        <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
             Observaciones
-            </label>
-            <textarea
+        </label>
+        <textarea
             value={observations}
             onChange={(e) => setObservations(e.target.value)}
-            className="w-full px-4 py-3 border"
-            />
+            className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none min-h-[120px]"
+        />
         </div>
 
+        {/* Botón */}
+        <div className="flex justify-end">
         <button
             type="submit"
             disabled={loading}
-            className="bg-[#c41e3a] text-white px-6 py-3 rounded hover:bg-[#a01830]"
+            className="px-6 py-2 bg-[#c41e3a] text-white uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors disabled:opacity-50"
         >
             {loading ? "Creando..." : "Crear Examen"}
         </button>
-        </form>
+        </div>
+    </form>
     )
-    }
+ }

@@ -140,24 +140,31 @@ export default function DojoSenseis() {
 
       {/* Formulario agregar sensei */}
       {showAddForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h3 className="text-lg font-semibold mb-4">Nuevo sensei</h3>
+        <div className="bg-white shadow-lg border border-gray-200 p-6 mb-8">
+          <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a] mb-6">
+            Nuevo <span className="text-[#c41e3a]">Sensei</span>
+          </h3>
 
           <div className="space-y-6">
             <div>
-              <label className="block mb-2">Nombre y apellido</label>
+              <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+                Nombre y apellido
+              </label>
               <input
-                className="w-full px-4 py-3 border"
+                className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={newSensei.full_name}
                 onChange={e =>
                   setNewSensei({ ...newSensei, full_name: e.target.value })
                 }
               />
             </div>
+
             <div>
-              <label className="block mb-2">Grado (Dan)</label>
+              <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+                Grado (Dan)
+              </label>
               <select
-                className="w-full px-4 py-3 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={newSensei.dan_grade}
                 onChange={e =>
                   setNewSensei({ ...newSensei, dan_grade: e.target.value })
@@ -177,29 +184,32 @@ export default function DojoSenseis() {
             </div>
 
             {/* Aviso con email y contraseña inicial */}
-            <div className="bg-orange-50 border p-4">
-              Email:{" "}
-              <strong>
-                {newSensei.full_name && dojo?.name
-                  ? generatedEmail(newSensei.full_name, dojo.name)
-                  : "nombreapellido@nombredojo.com"}
-              </strong>
-              <br />
-              Contraseña inicial: <strong>dojo2025</strong>
+            <div className="bg-orange-50 border p-4 text-sm text-orange-900">
+              <p>
+                Email:{" "}
+                <strong>
+                  {newSensei.full_name && dojo?.name
+                    ? generatedEmail(newSensei.full_name, dojo.name)
+                    : "nombreapellido@nombredojo.com"}
+                </strong>
+              </p>
+              <p>
+                Contraseña inicial: <strong>dojo2025</strong>
+              </p>
             </div>
 
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-end gap-4 mt-6">
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-6 py-3 bg-gray-300 rounded-lg"
+                className="px-6 py-2 bg-gray-300 text-[#1a1a1a] uppercase text-xs tracking-wide hover:bg-gray-400 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={() => setShowConfirm(true)}
-                className="px-6 py-3 bg-[#c41e3a] text-white rounded-lg hover:bg-[#a01830]"
+                className="px-6 py-2 bg-[#c41e3a] text-white uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
               >
                 Crear sensei
               </button>
@@ -214,7 +224,7 @@ export default function DojoSenseis() {
           <div className="mt-6">
             <button
               onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-2 bg-[#c41e3a] text-white px-4 py-2 rounded hover:bg-[#a01830]"
+              className="flex items-center gap-2 bg-[#c41e3a] text-white px-4 py-2 uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
             >
               <Plus className="w-4 h-4" /> Agregar sensei
             </button>
@@ -223,7 +233,7 @@ export default function DojoSenseis() {
         <div className="mt-6">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-2 bg-[#c41e3a] text-white rounded-lg hover:bg-[#a01830]"
+            className="px-4 py-2 bg-[#c41e3a] text-white uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
           >
             Filtros
           </button>
@@ -232,29 +242,33 @@ export default function DojoSenseis() {
 
       {/* Aside de filtros */}
       {showFilters && (
-        <aside className="fixed right-0 top-0 h-full w-80 bg-white shadow-lg p-6 overflow-y-auto z-50">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Filtros</h2>
+        <aside className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl border-l border-gray-200 p-6 overflow-y-auto z-50">
+          <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-3">
+            <h2 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a]">
+              Filtros
+            </h2>
             <button
               onClick={() => setShowFilters(false)}
-              className="text-gray-500 hover:text-red-600"
+              className="text-gray-500 hover:text-[#c41e3a] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Filtrar por nombre */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold">Filtrar por nombre</h3>
+              <h3 className="font-medium uppercase tracking-wide text-sm">Nombre</h3>
               <button
                 onClick={() => setFilters({ ...filters, name: "" })}
-                className="text-gray-500 hover:text-red-600"
+                className="text-gray-500 hover:text-[#c41e3a]"
               >
                 <Trash className="w-5 h-5" />
               </button>
             </div>
             <input
               type="text"
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
               placeholder="Ingresar nombre"
               value={filters.name}
               onChange={e => setFilters({ ...filters, name: e.target.value })}
@@ -264,17 +278,17 @@ export default function DojoSenseis() {
           {/* Filtrar por grado (Dan) */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold">Filtrar por grado (Dan)</h3>
+              <h3 className="font-medium uppercase tracking-wide text-sm">Grado (Dan)</h3>
               <button
                 onClick={() => setFilters({ ...filters, dan: "", danCondition: "exact" })}
-                className="text-gray-500 hover:text-red-600"
+                className="text-gray-500 hover:text-[#c41e3a]"
               >
                 <Trash className="w-5 h-5" />
               </button>
             </div>
             <div className="flex gap-2">
               <select
-                className="px-3 py-2 border rounded-lg"
+                className="px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={filters.danCondition}
                 onChange={e => setFilters({ ...filters, danCondition: e.target.value })}
               >
@@ -283,7 +297,7 @@ export default function DojoSenseis() {
                 <option value="mayor">Mayor que</option>
               </select>
               <select
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={filters.dan}
                 onChange={e => setFilters({ ...filters, dan: e.target.value })}
               >
@@ -298,9 +312,9 @@ export default function DojoSenseis() {
       )}
 
       {/* Tabla de senseis */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white shadow-lg border border-gray-200 overflow-hidden">
         <table className="w-full">
-          <thead className="bg-[#1a1a1a] text-white">
+          <thead className="bg-[#1a1a1a] text-white uppercase tracking-wide text-sm">
             <tr>
               <th className="px-6 py-4 text-left">Nombre y Apellido</th>
               <th className="px-6 py-4 text-left">Grado (Dan)</th>
@@ -311,13 +325,13 @@ export default function DojoSenseis() {
           <tbody>
             {filteredSenseis.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-gray-500 text-center">
+                <td colSpan={4} className="px-6 py-4 text-gray-500 text-center italic">
                   No hay senseis registrados
                 </td>
               </tr>
             ) : (
-              filteredSenseis.map(sensei => (
-                <tr key={sensei.id} className="border-b hover:bg-gray-50">
+              filteredSenseis.map((sensei) => (
+                <tr key={sensei.id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="px-6 py-4">{sensei.full_name}</td>
                   <td className="px-6 py-4">{sensei.dan_grade}</td>
                   <td className="px-6 py-4">
@@ -325,12 +339,13 @@ export default function DojoSenseis() {
                       ? new Date(sensei.registered_at).toLocaleDateString("es-AR")
                       : "-"}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => setSelectedSensei(sensei)}
-                      className="text-[#c41e3a] border border-[#c41e3a] px-4 py-2 rounded hover:bg-[#c41e3a] hover:text-white flex items-center gap-2"
+                      className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
                     >
                       <Eye className="w-4 h-4" />
+                      Ver
                     </button>
                   </td>
                 </tr>
@@ -352,14 +367,16 @@ export default function DojoSenseis() {
 
       {/* Modal de confirmación */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white shadow-2xl border border-gray-200 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-200">
-              <h3 className="text-[#1a1a1a] text-lg">Confirmar creación de sensei</h3>
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a]">
+                Confirmar <span className="text-[#c41e3a]">creación</span> de sensei
+              </h3>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-[#c41e3a] transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -367,19 +384,21 @@ export default function DojoSenseis() {
 
             {/* Información del sensei */}
             <div className="p-6 space-y-6">
-              <h4 className="text-[#1a1a1a] mb-4 font-semibold">Información del sensei</h4>
-              <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+              <h4 className="text-sm font-light uppercase tracking-wide text-[#1a1a1a] mb-4">
+                Información del sensei
+              </h4>
+              <div className="space-y-2 bg-gray-50 border border-gray-200 p-4 text-sm">
                 <div className="flex">
                   <span className="text-gray-600 w-40">Nombre:</span>
-                  <span className="text-[#1a1a1a]">{newSensei.full_name}</span>
+                  <span className="text-[#1a1a1a] font-medium">{newSensei.full_name}</span>
                 </div>
                 <div className="flex">
                   <span className="text-gray-600 w-40">Grado (Dan):</span>
-                  <span className="text-[#1a1a1a]">{newSensei.dan_grade}</span>
+                  <span className="text-[#1a1a1a] font-medium">{newSensei.dan_grade}</span>
                 </div>
                 <div className="flex">
                   <span className="text-gray-600 w-40">Email:</span>
-                  <span className="text-[#1a1a1a]">
+                  <span className="text-[#1a1a1a] font-medium">
                     {newSensei.full_name && dojo?.name
                       ? generatedEmail(newSensei.full_name, dojo.name)
                       : "nombreapellido@nombredojo.com"}
@@ -387,22 +406,22 @@ export default function DojoSenseis() {
                 </div>
                 <div className="flex">
                   <span className="text-gray-600 w-40">Contraseña inicial:</span>
-                  <span className="text-[#1a1a1a]">dojo2025</span>
+                  <span className="text-[#1a1a1a] font-medium">dojo2025</span>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
+            <div className="flex justify-end gap-4 px-6 py-4 border-t border-gray-200 bg-gray-50">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-6 py-3 bg-gray-300 rounded-lg"
+                className="px-6 py-2 bg-gray-300 text-[#1a1a1a] uppercase text-xs tracking-wide hover:bg-gray-400 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmAdd} // tu función para crear sensei en Supabase
-                className="px-6 py-3 bg-[#c41e3a] text-white rounded-lg hover:bg-[#a01830]"
+                className="px-6 py-2 bg-[#c41e3a] text-white uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
               >
                 Confirmar creación
               </button>

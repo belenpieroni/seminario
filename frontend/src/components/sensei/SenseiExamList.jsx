@@ -117,26 +117,30 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
         />
       ) : (
         <>
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-[#1a1a1a] text-2xl font-semibold">Exámenes</h2>
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8 border-b border-gray-200 pb-4">
+            <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a]">
+              Exámenes
+            </h2>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="flex items-center gap-2 bg-[#c41e3a] text-white px-6 py-3 hover:bg-[#a01830] transition-colors"
+              className="flex items-center gap-2 bg-[#c41e3a] text-white px-6 py-2 uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
             >
               <Plus className="w-5 h-5" />
               Crear Examen
             </button>
           </div>
 
+          {/* Loading / Empty */}
           {loading ? (
-            <p className="text-gray-600">Cargando exámenes...</p>
+            <p className="text-gray-600 italic">Cargando exámenes...</p>
           ) : exams.length === 0 ? (
             <div className="text-center py-16">
               <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-4">No hay exámenes creados aún</p>
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="bg-[#c41e3a] text-white px-6 py-3 hover:bg-[#a01830] transition-colors"
+                className="bg-[#c41e3a] text-white px-6 py-2 uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors"
               >
                 Crear Primer Examen
               </button>
@@ -146,10 +150,10 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
               {exams.map((exam) => (
                 <div
                   key={exam.id}
-                  className="bg-white shadow-md hover:shadow-lg transition-shadow cursor-pointer p-6"
+                  className="bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-shadow cursor-pointer"
                   onClick={() => setSelectedExamId(exam.id)}
                 >
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="px-6 py-4 flex justify-between items-center border-b border-gray-100">
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2 text-gray-700 mb-2">
                         <Calendar className="w-5 h-5 text-[#c41e3a]" />
@@ -161,26 +165,27 @@ export default function SenseiExamList({ senseiId, onViewDetail }) {
                       </div>
                     </div>
                     <span
-                      className={`px-3 py-1 text-sm rounded ${getStatusColor(exam.status)}`}
+                      className={`px-3 py-1 text-xs uppercase tracking-wide font-medium rounded ${getStatusColor(exam.status)}`}
                     >
                       {getStatusText(exam.status)}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-gray-700 mb-4">
-                    <Users className="w-5 h-5" />
-                    <span>{exam.enrolledCount} inscriptos</span>
+                  <div className="px-6 py-4 flex justify-between items-center text-gray-700 border-b border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-[#c41e3a]" />
+                      <span className="text-sm">{exam.enrolledCount} inscriptos</span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedExamId(exam.id)
+                      }}
+                      className="bg-[#1a1a1a] text-white px-4 py-2 uppercase text-xs tracking-wide hover:bg-[#c41e3a] transition-colors"
+                    >
+                      Ver Detalles
+                    </button>
                   </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedExamId(exam.id)
-                    }}
-                    className="w-full bg-[#1a1a1a] text-white py-2 hover:bg-[#c41e3a] transition-colors"
-                  >
-                    Ver Detalles
-                  </button>
                 </div>
               ))}
             </div>
