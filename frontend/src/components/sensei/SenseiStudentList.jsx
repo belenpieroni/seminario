@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { Plus, Eye, Trash, X } from "lucide-react";
 import { supabase } from "../../supabaseClient"
-import { StudentManageModal } from "../student/StudentManageModal";
+import { StudentManageModal } from "./StudentManageModal";
 
 export function SenseiStudentList() {
   const [students, setStudents] = useState([])

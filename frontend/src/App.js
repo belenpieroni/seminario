@@ -20,7 +20,7 @@ import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
 import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
 import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
 import { SenseiExams } from "./components/sensei/SenseiExams"
-import { SenseiNotifications } from "./components/sensei/SenseiNotifications"
+import SenseiNotifications from "./components/sensei/SenseiNotifications"
 import SenseiExamList from "./components/sensei/SenseiExamList"
 import DojoSenseis from "./components/sensei/DojoSenseis"
 //Imports componentes student
