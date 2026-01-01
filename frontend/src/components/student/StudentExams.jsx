@@ -73,66 +73,78 @@ export function StudentExams() {
 
   const renderExamCard = (e, isPast) => {
     const examDate = dayjs(e.exam_date)
-    const isEnrolled = enrollments.some(en => en.exam_id === e.id) // 👈 check inscripción
+    const isEnrolled = enrollments.some(en => en.exam_id === e.id)
 
     return (
-      <div key={e.id} className="bg-white shadow-md p-4 rounded-lg">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <ClipboardList className="w-5 h-5 text-[#c41e3a]" />
-            <span className="font-medium">
-              Examen en {e.location_dojo?.name || dojo.name}
-            </span>
-          </div>
-          <div className="flex flex-col text-gray-700 text-sm items-end">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>{examDate.format("DD/MM/YYYY")}</span>
+      <div key={e.id} className="bg-white shadow-lg border border-gray-200 rounded">
+        {/* Header de la tarjeta */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-[#c41e3a]">
+              <ClipboardList className="w-5 h-5 text-white" />
             </div>
-            <span className="text-gray-500">
+            <h3 className="text-[#1a1a1a] font-light uppercase tracking-wide">
+              Examen en {e.location_dojo?.name || dojo.name}
+            </h3>
+          </div>
+          <div className="text-sm text-gray-600 text-right">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#c41e3a]" />
+              <span className="font-medium">{examDate.format("DD/MM/YYYY")}</span>
+            </div>
+            <p className="text-xs text-gray-500">
               Creado: {dayjs(e.created_at).format("DD/MM/YYYY HH:mm")}
-            </span>
+            </p>
           </div>
         </div>
 
-        {e.observations && (
-          <p className="mt-2 text-sm text-gray-600">{e.observations}</p>
-        )}
+        {/* Contenido */}
+        <div className="p-6 space-y-3 text-sm">
+          {e.observations && (
+            <p className="text-gray-700">{e.observations}</p>
+          )}
 
-        <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-gray-700">
-            <MapPin className="w-4 h-4" />
-            <span>Sede: {e.location_dojo?.name || "Sede del dojo"}</span>
+            <MapPin className="w-4 h-4 text-[#c41e3a]" />
+            <span>Sede: <span className="font-medium">{e.location_dojo?.name || "Sede del dojo"}</span></span>
           </div>
+
+          {/* Botón de acción */}
           {!isPast && (
-            isEnrolled ? (
-              <button
-                onClick={() => setSelectedExam(e.id)}
-                className="px-4 py-2 bg-green-200 text-green-800 rounded"
-              >
-                Inscripto
-              </button>
-            ) : (
-              <button
-                onClick={() => setSelectedExam(e.id)}
-                className="px-4 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830] transition-colors"
-              >
-                Detalle
-              </button>
-            )
+            <div className="flex justify-end">
+              {isEnrolled ? (
+                <button
+                  onClick={() => setSelectedExam(e.id)}
+                  className="px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors text-xs uppercase tracking-wide"
+                >
+                  Inscripto
+                </button>
+              ) : (
+                <button
+                  onClick={() => setSelectedExam(e.id)}
+                  className="px-4 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830] transition-colors text-xs uppercase tracking-wide"
+                >
+                  Detalle
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
     )
   }
-
+  
   return (
     <div className="p-8 space-y-8">
       {/* Próximos */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Exámenes próximos</h2>
+        <div className="flex items-center justify-between mb-6 border-b border-gray-300 pb-2">
+          <h2 className="text-xl font-light uppercase tracking-wide text-[#1a1a1a]">
+            Exámenes <span className="text-[#c41e3a]">próximos</span>
+          </h2>
+        </div>
         {upcomingExams.length === 0 ? (
-          <p className="text-gray-500">Aún no se ha programado un examen.</p>
+          <p className="text-gray-500 italic">Aún no se ha programado un examen.</p>
         ) : (
           <div className="space-y-4">
             {upcomingExams.map(e => renderExamCard(e, false))}
@@ -142,9 +154,13 @@ export function StudentExams() {
 
       {/* Pasados */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Exámenes pasados</h2>
+        <div className="flex items-center justify-between mb-6 border-b border-gray-300 pb-2">
+          <h2 className="text-xl font-light uppercase tracking-wide text-[#1a1a1a]">
+            Exámenes <span className="text-[#c41e3a]">pasados</span>
+          </h2>
+        </div>
         {pastExams.length === 0 ? (
-          <p className="text-gray-500">Aún no se han realizado exámenes.</p>
+          <p className="text-gray-500 italic">Aún no se han realizado exámenes.</p>
         ) : (
           <div className="space-y-4">
             {pastExams.map(e => renderExamCard(e, true))}

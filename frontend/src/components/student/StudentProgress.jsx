@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "../../supabaseClient"
 import { Doughnut } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
-import ExamHistory from "./ExamModal"
+import { ExamHistory } from "./ExamModal"
 import beltWebp from "../../assets/belt.webp"
 
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -101,7 +101,12 @@ export default function StudentProgress() {
 
   return (
     <div className="p-8 space-y-8">
-      <h2 className="text-[#1a1a1a] text-2xl font-semibold">Mi Progreso</h2>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a]">
+          Mi <span className="text-[#c41e3a]">Progreso</span>
+        </h2>
+      </div>
       <div className="bg-white p-8 rounded-lg w-full max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">        
           {/* Columna izquierda: título + cinturón */}

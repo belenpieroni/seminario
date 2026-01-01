@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../supabaseClient"
-import { X, Paperclip } from "lucide-react"
+import { Paperclip } from "lucide-react"
 import { useNotifications } from "./NotificationContext"
 import { BackButton } from "./BackButton"
 
@@ -96,23 +96,12 @@ export function NotificationDetail({ notificationId, studentId, onBack }) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <BackButton onBack={onBack} />
-          <h1 className="text-2xl font-semibold text-[#1a1a1a] leading-tight">
+          <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a] mb-6">
             {notification.title}
-          </h1>
+          </h2>
           <div className="text-sm text-gray-500 mt-1">
             {notification.sensei?.full_name ? `De ${notification.sensei.full_name}` : "Remitente desconocido"}
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="text-gray-500 hover:text-[#c41e3a]"
-            aria-label="Cerrar"
-            title="Cerrar"
-          >
-            <X className="w-6 h-6" />
-          </button>
         </div>
       </div>
 

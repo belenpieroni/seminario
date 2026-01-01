@@ -88,36 +88,40 @@ export function ExamDetail({ examId, studentId, onClose }) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white shadow-lg w-full max-w-lg rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h3 className="text-[#1a1a1a] text-lg">Detalle del Examen</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h3 className="text-[#1a1a1a] font-light uppercase tracking-wide">
+            Examen
+          </h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-[#c41e3a]">
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Info */}
-        <div className="p-6 space-y-4">
-          <p><strong>Fecha:</strong> {dayjs(exam.exam_date).format("DD/MM/YYYY")}</p>
-          <p><strong>Sede:</strong> {exam.location_dojo?.name}</p>
+        <div className="p-6 space-y-3 text-sm">
+          <p><span className="text-gray-600">Fecha:</span> <span className="font-medium">{dayjs(exam.exam_date).format("DD/MM/YYYY")}</span></p>
+          <p><span className="text-gray-600">Sede:</span> <span className="font-medium">{exam.location_dojo?.name}</span></p>
           {exam.location_dojo?.address && (
-            <p><strong>Dirección:</strong> {exam.location_dojo.address}</p>
+            <p><span className="text-gray-600">Dirección:</span> <span className="font-medium">{exam.location_dojo.address}</span></p>
           )}
           {exam.location_dojo?.phone && (
-            <p><strong>Teléfono:</strong> {exam.location_dojo.phone}</p>
+            <p><span className="text-gray-600">Teléfono:</span> <span className="font-medium">{exam.location_dojo.phone}</span></p>
           )}
-          {exam.observations && <p><strong>Observaciones:</strong> {exam.observations}</p>}
+          {exam.observations && (
+            <p><span className="text-gray-600">Observaciones:</span> <span className="font-medium">{exam.observations}</span></p>
+          )}
 
           {enrollment ? (
             <>
-              <p><strong>Estado inscripción:</strong> Ya inscripto</p>
-              <p><strong>Cinturón:</strong> {enrollment.belt}</p>
+              <p><span className="text-gray-600">Estado inscripción:</span> <span className="font-medium">Ya inscripto</span></p>
+              <p><span className="text-gray-600">Cinturón:</span> <span className="font-medium">{enrollment.belt}</span></p>
             </>
           ) : (
             <div className="flex justify-end">
               <button
                 onClick={() => setShowConfirm(true)}
                 disabled={enrolling}
-                className="px-6 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830]"
+                className="px-6 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830] transition-colors text-xs uppercase tracking-wide"
               >
                 Inscribirme
               </button>
@@ -126,38 +130,38 @@ export function ExamDetail({ examId, studentId, onClose }) {
         </div>
       </div>
 
-      {/* Popup de confirmación */}
+      {/* Popup confirmación */}
       {showConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white shadow-lg w-full max-w-lg rounded-lg overflow-hidden">
-            <div className="flex justify-between items-center p-6 border-b border-gray-200">
-              <h3 className="text-[#1a1a1a] text-lg">Confirmación de Inscripción</h3>
-              <button onClick={() => setShowConfirm(false)} className="text-gray-500 hover:text-gray-700">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <h3 className="text-[#1a1a1a] font-light uppercase tracking-wide">Confirmar inscripción</h3>
+              <button onClick={() => setShowConfirm(false)} className="text-gray-500 hover:text-[#c41e3a]">
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-6 text-sm space-y-3">
               <p>
                 ¿Está seguro que quiere inscribirse al examen del{" "}
-                <strong>{dayjs(exam.exam_date).format("DD/MM/YYYY")}</strong>{" "}
+                <span className="font-medium">{dayjs(exam.exam_date).format("DD/MM/YYYY")}</span>{" "}
                 para rendir el cinturón{" "}
-                <strong>{getNextGrade(student?.current_belt)}</strong>{" "}
-                en el dojo <strong>{exam.location_dojo?.name}</strong>?
+                <span className="font-medium">{getNextGrade(student?.current_belt)}</span>{" "}
+                en el dojo <span className="font-medium">{exam.location_dojo?.name}</span>?
               </p>
             </div>
 
-            <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
+            <div className="flex justify-end gap-4 px-6 py-4 border-t border-gray-200">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs uppercase tracking-wide"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmEnroll}
                 disabled={enrolling}
-                className="px-6 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830]"
+                className="px-6 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830] text-xs uppercase tracking-wide"
               >
                 {enrolling ? "Inscribiendo..." : "Confirmar"}
               </button>
@@ -186,45 +190,45 @@ export function ExamModal({ enrollmentId, onClose }) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white shadow-lg w-full max-w-lg rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h3 className="text-[#1a1a1a] text-lg">Detalle del Examen</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h3 className="text-[#1a1a1a] font-light uppercase tracking-wide">Examen</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-[#c41e3a]">
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Información */}
-        <div className="p-6 space-y-4">
-          <p><strong>Dojo:</strong> {exam.dojo_name}</p>
-          <p><strong>Sensei:</strong> {exam.sensei_name}</p>
-          <p><strong>Cinturón rendido:</strong> {exam.belt}</p>
-          <p><strong>Presente:</strong> {exam.present ? "Sí" : "No"}</p>
+        <div className="p-6 space-y-3 text-sm">
+          <p><span className="text-gray-600">Dojo:</span> <span className="font-medium">{exam.dojo_name}</span></p>
+          <p><span className="text-gray-600">Sensei:</span> <span className="font-medium">{exam.sensei_name}</span></p>
+          <p><span className="text-gray-600">Cinturón rendido:</span> <span className="font-medium">{exam.belt}</span></p>
+          <p><span className="text-gray-600">Presente:</span> <span className="font-medium">{exam.present ? "Sí" : "No"}</span></p>
 
           {exam.present && (
             <>
-              <p><strong>Kata:</strong> {exam.kata}</p>
-              <p><strong>Kumite:</strong> {exam.kumite}</p>
-              <p><strong>Kihon:</strong> {exam.kihon}</p>
-              <p><strong>Nota final:</strong> {exam.final_grade}</p>
-              <p><strong>Observaciones:</strong> {exam.observations}</p>
+              <p><span className="text-gray-600">Kata:</span> <span className="font-medium">{exam.kata}</span></p>
+              <p><span className="text-gray-600">Kumite:</span> <span className="font-medium">{exam.kumite}</span></p>
+              <p><span className="text-gray-600">Kihon:</span> <span className="font-medium">{exam.kihon}</span></p>
+              <p><span className="text-gray-600">Nota final:</span> <span className="font-medium">{exam.final_grade}</span></p>
+              <p><span className="text-gray-600">Observaciones:</span> <span className="font-medium">{exam.observations}</span></p>
             </>
           )}
 
           <p>
-            <strong>Estado:</strong>{" "}
+            <span className="text-gray-600">Estado:</span>{" "}
             {exam.approved ? (
-              <span className="text-green-600">Aprobado</span>
+              <span className="text-green-600 font-medium">Aprobado</span>
             ) : (
-              <span className="text-red-600">Desaprobado</span>
+              <span className="text-red-600 font-medium">Desaprobado</span>
             )}
           </p>
         </div>
 
         {/* Botón cerrar */}
-        <div className="flex justify-end p-6 border-t border-gray-200">
+        <div className="flex justify-end px-6 py-4 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+            className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs uppercase tracking-wide"
           >
             Cerrar
           </button>
@@ -234,7 +238,7 @@ export function ExamModal({ enrollmentId, onClose }) {
   )
 }
 
-export default function ExamHistory({ studentId }) {
+export function ExamHistory({ studentId }) {
   const [exams, setExams] = useState([])
   const [selectedExam, setSelectedExam] = useState(null)
 
@@ -247,33 +251,65 @@ export default function ExamHistory({ studentId }) {
   }, [studentId])
 
   return (
-    <div className="mt-10">
-      <h2 className="text-2xl font-bold mb-4">Historial de Exámenes</h2>
+    <div className="p-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a]">
+          Historial <span className="text-[#c41e3a]">de Exámenes</span>
+        </h2>
+      </div>
+
       {exams.length === 0 ? (
-        <p className="text-gray-500">No hay exámenes registrados.</p>
+        <p className="text-gray-500 italic">No hay exámenes registrados.</p>
       ) : (
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {exams.map((exam) => (
-            <li
+            <div
               key={exam.id}
-              className="flex justify-between items-center bg-gray-100 p-4 rounded"
+              className="bg-white shadow-lg border border-gray-200 rounded"
             >
-              <div>
-                <p className="font-semibold">{exam.belt}</p>
-                <p className="text-sm text-gray-600">{exam.date}</p>
+              {/* Header tarjeta */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div>
+                  <p className="text-[#1a1a1a] font-medium">{exam.belt}</p>
+                  <p className="text-sm text-gray-600">{exam.date}</p>
+                  {exam.present && (
+                    <p className="text-xs text-green-600 font-semibold mt-1">
+                      Participaste
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {/* Estado rápido */}
+                  {exam.approved ? (
+                    <span className="text-green-600 font-semibold text-sm uppercase">
+                      Aprobado
+                    </span>
+                  ) : (
+                    <span className="text-red-600 font-semibold text-sm uppercase">
+                      Desaprobado
+                    </span>
+                  )}
+
+                  <button
+                    onClick={() => setSelectedExam(exam.id)}
+                    className="px-4 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830] transition-colors text-xs uppercase tracking-wide"
+                  >
+                    Ver detalle
+                  </button>
+                </div>
               </div>
-              <button 
-                onClick={() => setSelectedExam(exam.id)}
-                className="px-4 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830]" 
-              > Ver detalle 
-              </button>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
       {selectedExam && (
-        <ExamModal enrollmentId={selectedExam} onClose={() => setSelectedExam(null)} />
+        <ExamModal
+          enrollmentId={selectedExam}
+          onClose={() => setSelectedExam(null)}
+        />
       )}
     </div>
   )
