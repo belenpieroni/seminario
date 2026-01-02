@@ -140,7 +140,6 @@ export async function getExamDetail(examId) {
   }
 }
 
-// Obtener historial de exámenes de un alumno
 export async function getExamHistory(studentId) {
   if (!studentId) return []
 
@@ -177,15 +176,35 @@ export async function getExamHistory(studentId) {
     return []
   }
 
+  const now = new Date()
+
   return (data || []).map((enr) => {
     const result = Array.isArray(enr.exam_result) ? enr.exam_result[0] : enr.exam_result
+
+    // fecha del examen (Date o null)
+    const examDate = enr.exam?.exam_date ? new Date(enr.exam.exam_date) : null
+
+    // estado calculado
+    let status = null
+    if (result && result.final_grade) {
+      status = APPROVED_GRADES.includes(result.final_grade) ? "approved" : "failed"
+    } else if (!result) {
+      if (examDate && examDate.getTime() > now.getTime()) {
+        status = "scheduled" // examen futuro, sin resultado aún
+      } else {
+        status = "pending" // examen pasado sin resultado cargado
+      }
+    } else {
+      // result existe pero no tiene final_grade (por si acaso)
+      status = "pending"
+    }
 
     return {
       enrollmentId: enr.id,
       studentId: enr.student_id,
-      beltRend: enr.belt ?? null,
-      date: enr.exam?.exam_date ? new Date(enr.exam.exam_date).toISOString() : null,
-      dateLabel: enr.exam?.exam_date ? new Date(enr.exam.exam_date).toLocaleDateString("es-AR") : "Fecha desconocida",
+      belt: enr.belt ?? null,
+      date: examDate ? examDate.toISOString() : null,
+      dateLabel: examDate ? examDate.toLocaleDateString("es-AR") : "Fecha desconocida",
       dojo_name: enr.exam?.dojo?.name ?? "Dojo desconocido",
       sensei_name: enr.exam?.sensei?.full_name ?? "Sensei desconocido",
       exam_observations: enr.exam?.observations ?? null,
@@ -199,7 +218,11 @@ export async function getExamHistory(studentId) {
       recorded_at: result?.recorded_at ?? null,
       result_observations: result?.observations ?? null,
 
-      approved: result?.final_grade ? APPROVED_GRADES.includes(result.final_grade) : null
+      // flags antiguos (si los necesitás)
+      approved: result?.final_grade ? APPROVED_GRADES.includes(result.final_grade) : null,
+
+      // nuevo campo de estado: "approved" | "failed" | "scheduled" | "pending"
+      status,
     }
   })
 }
@@ -257,7 +280,7 @@ export async function getExamDetailByEnrollment(enrollmentId) {
     kihon: result?.kihon_grade ?? null,
     final_grade: result?.final_grade ?? null,
     observations: result?.observations ?? null,
-    
+
     approved: result?.final_grade ? APPROVED_GRADES.includes(result.final_grade) : null
   }
 }

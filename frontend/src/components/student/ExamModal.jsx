@@ -247,8 +247,22 @@ export function ExamHistory({ studentId }) {
       const history = await getExamHistory(studentId)
       setExams(history)
     }
-    fetchExams()
+    if (studentId) fetchExams()
   }, [studentId])
+
+  const renderStatusBadge = (status) => {
+    switch (status) {
+      case "approved":
+        return <span className="text-green-600 font-semibold text-sm uppercase">Aprobado</span>
+      case "failed":
+        return <span className="text-red-600 font-semibold text-sm uppercase">Desaprobado</span>
+      case "scheduled":
+        return <span className="text-blue-600 font-semibold text-sm uppercase">Inscripto</span>
+      case "pending":
+      default:
+        return <span className="text-gray-600 font-semibold text-sm uppercase">Pendiente</span>
+    }
+  }
 
   return (
     <div className="p-8">
@@ -263,45 +277,49 @@ export function ExamHistory({ studentId }) {
         <p className="text-gray-500 italic">No hay exámenes registrados.</p>
       ) : (
         <div className="space-y-4">
-          {exams.map((exam) => (
-            <div
-              key={exam.id}
-              className="bg-white shadow-lg border border-gray-200 rounded"
-            >
-              {/* Header tarjeta */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div>
-                  <p className="text-[#1a1a1a] font-medium">{exam.belt}</p>
-                  <p className="text-sm text-gray-600">{exam.date}</p>
-                  {exam.present && (
-                    <p className="text-xs text-green-600 font-semibold mt-1">
-                      Participaste
-                    </p>
-                  )}
-                </div>
+          {exams.map((exam) => {
+            const isInscripto = exam.status === "scheduled"
+            return (
+              <div
+                key={exam.enrollmentId}
+                className="bg-white shadow-lg border border-gray-200 rounded"
+              >
+                {/* Header tarjeta */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+                  <div>
+                    <p className="text-[#1a1a1a] font-medium">{exam.belt}</p>
+                    <p className="text-sm text-gray-600">{exam.dateLabel}</p>
+                    {exam.present && (
+                      <p className="text-xs text-green-600 font-semibold mt-1">
+                        Participaste
+                      </p>
+                    )}
+                  </div>
 
-                <div className="flex items-center gap-4">
-                  {/* Estado rápido */}
-                  {exam.approved ? (
-                    <span className="text-green-600 font-semibold text-sm uppercase">
-                      Aprobado
-                    </span>
-                  ) : (
-                    <span className="text-red-600 font-semibold text-sm uppercase">
-                      Desaprobado
-                    </span>
-                  )}
+                  <div className="flex items-center gap-4">
+                    {/* Estado rápido */}
+                    {renderStatusBadge(exam.status)}
 
-                  <button
-                    onClick={() => setSelectedExam(exam.id)}
-                    className="px-4 py-2 bg-[#c41e3a] text-white rounded hover:bg-[#a01830] transition-colors text-xs uppercase tracking-wide"
-                  >
-                    Ver detalle
-                  </button>
+                    <button
+                      onClick={() => {
+                        if (isInscripto) return
+                        setSelectedExam(exam.enrollmentId)
+                      }}
+                      disabled={isInscripto}
+                      title={isInscripto ? "No hay detalles disponibles para inscripciones" : "Ver detalle"}
+                      className={`px-4 py-2 text-xs uppercase tracking-wide rounded transition-colors ${
+                        isInscripto
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-[#c41e3a] text-white hover:bg-[#a01830]"
+                      }`}
+                    >
+                      Ver detalle
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 

@@ -14,45 +14,28 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
   const [observations, setObservations] = useState("")
   const [present, setPresent] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [alreadySubmitted, setAlreadySubmitted] = useState(false)
 
-  // ✅ Recuperar nombre del alumno
   useEffect(() => {
     const fetchStudent = async () => {
-      console.log("🔎 Buscando alumno con id:", enrollment.student_id)
       const { data, error } = await supabase
         .from("student")
         .select("full_name")
         .eq("id", enrollment.student_id)
         .single()
-
-      if (error) {
-        console.error("❌ Error al recuperar alumno:", error.message)
-      }
-      if (data) {
-        console.log("✅ Alumno encontrado:", data)
-        setStudentName(data.full_name)
-      }
+      if (!error && data) setStudentName(data.full_name)
     }
-    if (enrollment?.student_id) {
-      fetchStudent()
-    }
+    if (enrollment?.student_id) fetchStudent()
   }, [enrollment.student_id])
 
-  // ✅ Validación: verificar si ya existe resultado para este enrollment
   useEffect(() => {
     const checkExistingResult = async () => {
-      console.log("🔎 Verificando resultados previos para enrollment:", enrollment.id)
       const { data, error } = await supabase
         .from("exam_result")
         .select("*")
         .eq("enrollment_id", enrollment.id)
-
-      if (error) {
-        console.error("❌ Error al verificar resultados:", error.message)
-      }
-      if (data && data.length > 0) {
-        console.log("⚠️ Ya existe resultado:", data[0])
+      if (!error && data && data.length > 0) {
         setAlreadySubmitted(true)
         const result = data[0]
         setKata(result.kata_grade)
@@ -63,25 +46,22 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
         setPresent(result.present)
       }
     }
-    if (enrollment?.id) {
-      checkExistingResult()
-    }
+    if (enrollment?.id) checkExistingResult()
   }, [enrollment.id])
 
-  const handleSubmit = async () => {
+  // Abre el modal de confirmación
+  const handleSubmit = () => {
     if (alreadySubmitted) {
       alert("Ya existe un resultado cargado para este examen. No se puede volver a cargar.")
       return
     }
+    setShowConfirm(true)
+  }
 
-    const confirmMsg = `¿Está seguro que quiere cargar las notas de ${studentName} para el examen de cinturón ${enrollment.belt}?`
-    if (!window.confirm(confirmMsg)) {
-      return
-    }
-
+  // Confirmación real: guarda en DB
+  const handleConfirmSubmit = async () => {
     setLoading(true)
 
-    // 1. Insertar resultado del examen
     const { error: insertError } = await supabase
       .from("exam_result")
       .insert({
@@ -96,26 +76,26 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
 
     if (insertError) {
       setLoading(false)
-      console.error("Error guardando resultado:", insertError.message)
       alert("No se pudo guardar el resultado.")
       return
     }
 
-    // 2. Validar si aprobó (ejemplo: cualquier nota >= C se considera aprobado)
     const approvedGrades = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"]
     const isApproved = approvedGrades.includes(finalGrade)
 
-    if (isApproved) { 
-      try { 
+    if (isApproved) {
+      try {
         const updated = await updateStudentBelt(enrollment.studentId, enrollment.belt)
-        alert(`Resultado guardado y cinturón actualizado a ${updated[0].current_belt}`) 
-      } catch (err) { 
-        alert("El resultado se guardó, pero no se pudo actualizar el cinturón del alumno.") 
-      } 
-    } else { 
-      alert("Resultado guardado. El alumno no aprobó, por lo que su cinturón no se actualiza.") 
+        alert(`Resultado guardado y grado actualizado a ${updated[0].current_belt}`)
+      } catch (err) {
+        alert("El resultado se guardó, pero no se pudo actualizar el grado del alumno.")
+      }
+    } else {
+      alert("Resultado guardado. El alumno no aprobó, por lo que su grado no se actualiza.")
     }
+
     setLoading(false)
+    setShowConfirm(false)
     onClose()
   }
 
@@ -127,18 +107,14 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
           <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a]">
             Registrar <span className="text-[#c41e3a]">Resultado</span>
           </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-[#c41e3a] transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-500 hover:text-[#c41e3a] transition-colors">
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Subtítulo */}
         <div className="px-6 py-3 text-gray-700 text-sm italic border-b border-gray-100">
-          Está cargando las notas del alumno{" "}
-          <strong>{studentName}</strong> para cinturón{" "}
+          Está cargando las notas del alumno <strong>{studentName}</strong> para el grado{" "}
           <strong>{enrollment.belt}</strong>
         </div>
 
@@ -207,14 +183,39 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
                 : "bg-[#c41e3a] hover:bg-[#a01830]"
             }`}
           >
-            {alreadySubmitted
-              ? "Ya cargado"
-              : loading
-              ? "Guardando..."
-              : "Confirmar"}
+            {alreadySubmitted ? "Ya cargado" : "Confirmar"}
           </button>
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h4 className="text-[#1a1a1a] mb-4 font-medium uppercase text-sm tracking-wide">
+              Confirmar carga de resultado
+            </h4>
+            <p className="text-gray-700 text-sm mb-6">
+              ¿Está seguro que quiere cargar las notas de <strong>{studentName}</strong> para el grado{" "}
+              <strong>{enrollment.belt}</strong>?
+            </p>
+            <div className="flex justify-end gap-4 border-t border-gray-200 pt-4">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-6 py-2 bg-gray-300 text-[#1a1a1a] rounded-md hover:bg-gray-400 transition-colors text-sm uppercase tracking-wide"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmSubmit}
+                className="px-6 py-2 bg-[#c41e3a] text-white rounded-md hover:bg-[#a01830] transition-colors text-sm uppercase tracking-wide"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
