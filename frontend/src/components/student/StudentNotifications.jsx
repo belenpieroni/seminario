@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react"
 import { supabase } from "../../supabaseClient"
-import { NotificationDetail } from "../common/NotificationDetail"
+import { NotificationDetail } from "./NotificationDetail"
 import { useNotifications } from "../common/NotificationContext"
 
 export function StudentNotifications() {

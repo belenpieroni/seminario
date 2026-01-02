@@ -1,12 +1,13 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Mail, Lock } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import backgroundJpg from "../../assets/fondo.jpg"
 import { BackButton } from "../common/BackButton"
 
 export function Login({ onLogin }) {
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [password, setPassword] = useState(""); 
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate()
 
   const handleSubmit = e => {
@@ -77,7 +78,7 @@ export function Login({ onLogin }) {
             <div className="relative">
               <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -87,7 +88,7 @@ export function Login({ onLogin }) {
                   peer w-full
                   bg-transparent
                   border-0 border-b-2 border-[#c41e3a]
-                  pl-8 pb-2 pt-4
+                  pl-8 pr-10 pb-2 pt-4
                   text-[#1a1a1a]
                   focus:outline-none
                   focus:border-[#a01830]
@@ -110,9 +111,21 @@ export function Login({ onLogin }) {
               >
                 Contraseña
               </label>
+
+              {/* Botón ojito */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#c41e3a] p-2"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
             </div>
 
-            {/* OLVIDASTE CONTRASEÑA */}
             <div className="text-right">
               <button
                 type="button"
@@ -121,8 +134,6 @@ export function Login({ onLogin }) {
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
-
-            {/* ESPACIO antes del botón */}
             <div className="mt-8">
               <button
                 type="submit"

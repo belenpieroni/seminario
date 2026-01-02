@@ -3,6 +3,7 @@ import { useState } from "react"
 import { supabase } from "../../supabaseClient"
 import { Lock, Eye, EyeOff } from "lucide-react"
 import fondo from "../../assets/fondo.jpg"
+import { BackButton } from "../common/BackButton"
 
 export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState("")
@@ -83,6 +84,7 @@ export default function ChangePassword() {
 
       <div className="relative w-full max-w-md px-4">
         <div className="backdrop-blur-md bg-white/80 shadow-2xl p-8">
+        <BackButton onBack={() => navigate("/login")} />
           {/* TÍTULO */}
           <div className="text-center mb-10">
             <h1 className="text-2xl tracking-[0.3em] font-light text-[#1a1a1a] uppercase">
@@ -131,6 +133,7 @@ export default function ChangePassword() {
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder=" "
                 required
+                minLength={6} 
                 className="peer w-full bg-transparent border-0 border-b-2 border-[#c41e3a] pl-8 pb-2 pt-4 text-[#1a1a1a] focus:outline-none focus:border-[#a01830]"
               />
               <label
@@ -146,6 +149,7 @@ export default function ChangePassword() {
               >
                 {showNew ? <EyeOff /> : <Eye />}
               </button>
+              {newPassword && ( <p className={`mt-1 text-xs ${ newPassword.length < 6 ? "text-red-600" : "text-green-600" }`} > {newPassword.length < 6 ? "Debe tener al menos 6 caracteres" : "✔ Contraseña válida"} </p> )}
             </div>
 
             {/* REPETIR NUEVA CONTRASEÑA */}
@@ -158,6 +162,7 @@ export default function ChangePassword() {
                 onChange={e => setRepeatPassword(e.target.value)}
                 placeholder=" "
                 required
+                minLength={6} 
                 className="peer w-full bg-transparent border-0 border-b-2 border-[#c41e3a] pl-8 pb-2 pt-4 text-[#1a1a1a] focus:outline-none focus:border-[#a01830]"
               />
               <label
@@ -173,6 +178,7 @@ export default function ChangePassword() {
               >
                 {showRepeat ? <EyeOff /> : <Eye />}
               </button>
+              {repeatPassword && ( <p className={`mt-1 text-xs ${ repeatPassword === newPassword ? "text-green-600" : "text-red-600" }`} > {repeatPassword === newPassword ? "" : "Las contraseñas no coinciden"} </p> )}
             </div>
 
             {/* BOTÓN */}

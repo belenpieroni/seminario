@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../supabaseClient"
 import { Paperclip } from "lucide-react"
-import { useNotifications } from "./NotificationContext"
-import { BackButton } from "./BackButton"
+import { useNotifications } from "../common/NotificationContext"
+import { BackButton } from "../common/BackButton"
 
 export function NotificationDetail({ notificationId, studentId, onBack }) {
   const [notification, setNotification] = useState(null)
