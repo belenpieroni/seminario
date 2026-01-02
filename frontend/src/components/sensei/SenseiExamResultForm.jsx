@@ -114,7 +114,7 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
 
         {/* Subtítulo */}
         <div className="px-6 py-3 text-gray-700 text-sm italic border-b border-gray-100">
-          Está cargando las notas del alumno <strong>{studentName}</strong> para el grado{" "}
+          Está cargando las notas del alumno <strong>{enrollment.studentName}</strong> para el grado{" "}
           <strong>{enrollment.belt}</strong>
         </div>
 
@@ -191,14 +191,32 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
       {/* Modal de confirmación */}
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+          <div className="bg-white p-6 shadow-xl w-full max-w-md">
             <h4 className="text-[#1a1a1a] mb-4 font-medium uppercase text-sm tracking-wide">
               Confirmar carga de resultado
             </h4>
             <p className="text-gray-700 text-sm mb-6">
-              ¿Está seguro que quiere cargar las notas de <strong>{studentName}</strong> para el grado{" "}
+              ¿Está seguro que quiere cargar las notas de <strong>{enrollment.studentName}</strong> para el grado{" "}
               <strong>{enrollment.belt}</strong>?
             </p>
+
+            {/* Detalle de notas */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm space-y-2 mb-6">
+              <div><span className="text-gray-600">Alumno:</span> <span className="font-medium">{enrollment.studentName}</span></div>
+              <div><span className="text-gray-600">Kata:</span> <span className="font-medium">{kata}</span></div>
+              <div><span className="text-gray-600">Kumite:</span> <span className="font-medium">{kumite}</span></div>
+              <div><span className="text-gray-600">Kihon:</span> <span className="font-medium">{kihon}</span></div>
+              <div><span className="text-gray-600">Nota final:</span> <span className="font-medium">{finalGrade}</span></div>
+              <div>
+                <span className="text-gray-600">Estado:</span>{" "}
+                {["A+","A","A-","B+","B","B-","C+","C","C-"].includes(finalGrade) ? (
+                  <span className="font-semibold text-green-600">Aprobado</span>
+                ) : (
+                  <span className="font-semibold text-red-600">Desaprobado</span>
+                )}
+              </div>
+            </div>
+
             <div className="flex justify-end gap-4 border-t border-gray-200 pt-4">
               <button
                 onClick={() => setShowConfirm(false)}

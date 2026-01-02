@@ -51,28 +51,32 @@ export default function SenseiExamDetail({ examId, onBack }) {
             <tr className="text-left">
               <th className="px-4 py-3 text-left">Nombre</th>
               <th className="px-4 py-3 text-left">Dojo</th>
-              <th className="px-4 py-3 text-left">Cinturón actual</th>
-              <th className="px-4 py-3 text-left">Cinturón a rendir</th>
+              <th className="px-4 py-3 text-left">Grado actual</th>
+              <th className="px-4 py-3 text-left">Grado a rendir</th>
               <th className="px-4 py-3 text-left">Acción</th>
             </tr>
           </thead>
           <tbody>
-            {exam.enrollments.map((enr) => (
-              <tr key={enr.id} className="border-b">
-                <td className="p-2">{enr.studentName}</td>
-                <td className="p-2">{enr.studentDojo}</td>
-                <td className="p-2">{enr.currentBelt}</td>
-                <td className="p-2">{enr.beltToRender}</td>
-                <td className="px-6 py-4">
-                <button
-                  onClick={() => setSelectedEnrollment(enr)}
-                  className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-                </td>
-              </tr>
-            ))}
+            {exam.enrollments.map((enr) => {
+              const yaRindio = enr.currentBelt === enr.belt
+
+              return (
+                <tr key={enr.id} className="border-b">
+                  <td className="p-2">{enr.studentName}</td>
+                  <td className="p-2">{enr.studentDojo}</td>
+                  <td className="p-2">{enr.currentBelt}</td>
+                  <td className="p-2 text-green-600 uppercase text-left">{yaRindio ? "Rendido" : enr.belt}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => setSelectedEnrollment(enr)}
+                      className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
