@@ -1,5 +1,6 @@
 // examQueries.js
 import { supabase } from "../supabaseClient"
+const APPROVED_GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"]
 
 // Traer todos los exámenes de un sensei (con dojo y cantidad de inscriptos)
 export async function getExamsBySensei(senseiId) {
@@ -128,11 +129,11 @@ export async function getExamDetail(examId) {
       console.log("📌 Enrollment recibido:", enr)
       return {
         id: enr.id,
-        studentId: enr.student_id,              // 🔑 ahora sí lo tenemos
+        studentId: enr.student_id,              
         studentName: enr.student?.full_name,
         studentDojo: enr.student?.dojo?.name,
         currentBelt: enr.student?.current_belt,
-        belt: enr.belt,                         // cinturón a rendir
+        belt: enr.belt,                     
         enrolledAt: new Date(enr.enrolled_at).toLocaleDateString("es-AR"),
       }
     }),
@@ -154,13 +155,11 @@ export async function getExamHistory(studentId) {
         id,
         exam_date,
         observations,
-        dojo:dojo_id (name),
-        sensei:sensei_id (
-          id,
-          full_name
-        )
+        dojo:dojo_id ( name ),
+        sensei:sensei_id ( id, full_name )
       ),
       exam_result (
+        id,
         kata_grade,
         kumite_grade,
         kihon_grade,
@@ -174,40 +173,33 @@ export async function getExamHistory(studentId) {
     .order("enrolled_at", { ascending: false })
 
   if (error) {
-    console.error("❌ Error cargando historial:", error.message)
+    console.error("Error cargando historial de exámenes:", error)
     return []
   }
 
-  console.log("✅ Exámenes encontrados (raw):", data)
-
-  return data.map((enr) => {
-    // exam_result viene como array, tomamos el primero
+  return (data || []).map((enr) => {
     const result = Array.isArray(enr.exam_result) ? enr.exam_result[0] : enr.exam_result
 
     return {
-      id: enr.id,
+      enrollmentId: enr.id,
       studentId: enr.student_id,
-      belt: enr.belt,
-      date: enr.exam?.exam_date
-        ? new Date(enr.exam.exam_date).toLocaleDateString("es-AR")
-        : "Fecha desconocida",
+      beltRend: enr.belt ?? null,
+      date: enr.exam?.exam_date ? new Date(enr.exam.exam_date).toISOString() : null,
+      dateLabel: enr.exam?.exam_date ? new Date(enr.exam.exam_date).toLocaleDateString("es-AR") : "Fecha desconocida",
       dojo_name: enr.exam?.dojo?.name ?? "Dojo desconocido",
       sensei_name: enr.exam?.sensei?.full_name ?? "Sensei desconocido",
       exam_observations: enr.exam?.observations ?? null,
 
-      // Resultados
-      present: result?.present ?? null,
+      resultId: result?.id ?? null,
       kata: result?.kata_grade ?? null,
       kumite: result?.kumite_grade ?? null,
       kihon: result?.kihon_grade ?? null,
       final_grade: result?.final_grade ?? null,
-      observations: result?.observations ?? null,
+      present: typeof result?.present === "boolean" ? result.present : null,
       recorded_at: result?.recorded_at ?? null,
+      result_observations: result?.observations ?? null,
 
-      // Estado aprobado/desaprobado
-      approved: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"].includes(
-        result?.final_grade ?? ""
-      ),
+      approved: result?.final_grade ? APPROVED_GRADES.includes(result.final_grade) : null
     }
   })
 }
@@ -265,9 +257,7 @@ export async function getExamDetailByEnrollment(enrollmentId) {
     kihon: result?.kihon_grade ?? null,
     final_grade: result?.final_grade ?? null,
     observations: result?.observations ?? null,
-
-    approved: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C-"].includes(
-      result?.final_grade ?? ""
-    ),
+    
+    approved: result?.final_grade ? APPROVED_GRADES.includes(result.final_grade) : null
   }
 }

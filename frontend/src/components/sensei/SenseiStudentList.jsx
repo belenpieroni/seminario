@@ -1,21 +1,22 @@
 import { useState, useEffect, useMemo } from "react"
-import { Plus, Eye, Trash, X } from "lucide-react";
+import { Plus, Eye, Trash, X } from "lucide-react"
 import { supabase } from "../../supabaseClient"
-import { StudentManageModal } from "./StudentManageModal";
+import { StudentManageModal } from "./StudentManageModal"
 
 export function SenseiStudentList() {
   const [students, setStudents] = useState([])
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [dojo, setDojo] = useState(null)   
+  const [dojo, setDojo] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
   const [newStudent, setNewStudent] = useState({
     full_name: "",
     birth_date: "",
     current_belt: ""
   })
+
   const belts = [
     "Blanco",
     "Amarillo",
@@ -23,139 +24,254 @@ export function SenseiStudentList() {
     "Verde",
     "Azul",
     "Marrón",
-    "Negro"
+    "Negro",
+    "1er Dan",
+    "2do Dan",
+    "3er Dan",
+    "4to Dan",
+    "5to Dan",
+    "6to Dan",
+    "7mo Dan",
+    "8vo Dan",
+    "9no Dan"
   ]
+
   const [filters, setFilters] = useState({
     name: "",
     age: "",
-    ageCondition: "exact", 
+    ageCondition: "exact",
     belt: "",
     beltCondition: "exact",
     examDate: "",
     examStart: "",
-    examEnd: "",
-  });
+    examEnd: ""
+  })
+
   const filteredStudents = useMemo(
     () => applyFilters(students, filters),
     [students, filters]
-  );
+  )
 
   const generatedEmail = (studentName, dojoName) => {
-    const parts = studentName.toLowerCase().trim().split(" ")
+    const parts = (studentName || "").toLowerCase().trim().split(" ")
     const first = parts[0] || ""
     const last = parts[parts.length - 1] || ""
-    const dojoSlug = dojoName.toLowerCase().replace(/\s+/g, "")
+    const dojoSlug = (dojoName || "").toLowerCase().replace(/\s+/g, "")
     return `${first}${last}@${dojoSlug}.com`
   }
 
-  function applyFilters(students, filters) {
-    return students.filter(student => {
+  function applyFilters(studentsList, filtersObj) {
+    return (studentsList || []).filter((student) => {
       // Nombre / Apellido
-      if (filters.name) {
-        const fullName = student.full_name.toLowerCase();
-        if (!fullName.includes(filters.name.toLowerCase())) return false;
+      if (filtersObj.name) {
+        const fullName = (student.full_name || "").toLowerCase()
+        if (!fullName.includes(filtersObj.name.toLowerCase())) return false
       }
 
       // Edad
-      if (filters.age) {
+      if (filtersObj.age) {
         const age = student.birth_date
           ? Math.floor(
               (Date.now() - new Date(student.birth_date).getTime()) /
                 (1000 * 60 * 60 * 24 * 365.25)
             )
-          : null;
+          : null
 
         if (age !== null) {
-          if (filters.ageCondition === "exact" && age !== Number(filters.age)) return false;
-          if (filters.ageCondition === "menor" && age >= Number(filters.age)) return false;
-          if (filters.ageCondition === "mayor" && age <= Number(filters.age)) return false;
+          if (filtersObj.ageCondition === "exact" && age !== Number(filtersObj.age)) return false
+          if (filtersObj.ageCondition === "menor" && age >= Number(filtersObj.age)) return false
+          if (filtersObj.ageCondition === "mayor" && age <= Number(filtersObj.age)) return false
         }
       }
 
       // Cinturón
-      if (filters.belt) {
-        const beltIndex = belts.indexOf(student.current_belt);
-        const filterIndex = belts.indexOf(filters.belt);
+      if (filtersObj.belt) {
+        const beltIndex = belts.indexOf(student.current_belt)
+        const filterIndex = belts.indexOf(filtersObj.belt)
 
-        if (filters.beltCondition === "exact" && beltIndex !== filterIndex) return false;
-        if (filters.beltCondition === "menor" && beltIndex >= filterIndex) return false;
-        if (filters.beltCondition === "mayor" && beltIndex <= filterIndex) return false;
+        if (filtersObj.beltCondition === "exact" && beltIndex !== filterIndex) return false
+        if (filtersObj.beltCondition === "menor" && beltIndex >= filterIndex) return false
+        if (filtersObj.beltCondition === "mayor" && beltIndex <= filterIndex) return false
       }
 
-      // Último examen
-      if (filters.examDate) {
-        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null;
-        if (!examDate || examDate.toISOString().split("T")[0] !== filters.examDate) return false;
+      // Último examen (fecha exacta)
+      if (filtersObj.examDate) {
+        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null
+        if (!examDate || examDate.toISOString().split("T")[0] !== filtersObj.examDate) return false
       }
 
-      if (filters.examStart && filters.examEnd) {
-        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null;
+      // Rango de exámenes
+      if (filtersObj.examStart && filtersObj.examEnd) {
+        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null
         if (
           !examDate ||
-          examDate < new Date(filters.examStart) ||
-          examDate > new Date(filters.examEnd)
+          examDate < new Date(filtersObj.examStart) ||
+          examDate > new Date(filtersObj.examEnd)
         ) {
-          return false;
+          return false
         }
       }
 
-      return true;
-    });
+      return true
+    })
   }
 
   function handleUpdatedStudent(updatedStudent) {
-    setStudents(prevStudents =>
-      prevStudents.map(student =>
-        student.id === updatedStudent.id
-          ? { ...student, ...updatedStudent }
-          : student
-      )
-    );
+    setStudents((prevStudents) =>
+      prevStudents.map((student) => (student.id === updatedStudent.id ? { ...student, ...updatedStudent } : student))
+    )
   }
 
   useEffect(() => {
+    let mounted = true
+
     async function fetchStudents() {
       setLoading(true)
-      const { data: userData } = await supabase.auth.getUser()
-      const user = userData?.user
-      if (!user) {
-        setLoading(false)
-        return
+      try {
+        const { data: userData } = await supabase.auth.getUser()
+        const user = userData?.user
+        if (!user) {
+          if (mounted) setLoading(false)
+          return
+        }
+
+        // obtener dojo_id del sensei
+        const { data: sensei } = await supabase
+          .from("sensei")
+          .select("dojo_id")
+          .eq("user_id", user.id)
+          .single()
+
+        if (!sensei?.dojo_id) {
+          if (mounted) setLoading(false)
+          return
+        }
+
+        // traer datos del dojo (nombre)
+        const { data: dojoData } = await supabase
+          .from("dojo")
+          .select("id, name")
+          .eq("id", sensei.dojo_id)
+          .single()
+
+        if (mounted) setDojo(dojoData || null)
+
+        // traer alumnos del dojo
+        const { data: studentsData, error: studentsErr } = await supabase
+          .from("student")
+          .select("id, full_name, birth_date, current_belt, registered_at")
+          .eq("dojo_id", sensei.dojo_id)
+          .eq("is_active", true)
+
+        if (studentsErr) {
+          console.error("Error fetching students:", studentsErr)
+          if (mounted) {
+            setStudents([])
+            setLoading(false)
+          }
+          return
+        }
+
+        const studentsList = studentsData || []
+
+        // si no hay alumnos, terminamos
+        if (studentsList.length === 0) {
+          if (mounted) {
+            setStudents([])
+            setLoading(false)
+          }
+          return
+        }
+
+        // 1) obtener todos los student_ids
+        const studentIds = studentsList.map((s) => s.id)
+
+        // 2) traer todas las inscripciones de esos alumnos (exam_enrollment)
+        const { data: enrollmentsData, error: enrollErr } = await supabase
+          .from("exam_enrollment")
+          .select("student_id, exam_id")
+          .in("student_id", studentIds)
+
+        if (enrollErr) {
+          console.error("Error fetching enrollments:", enrollErr)
+          if (mounted) {
+            // seguimos sin last_exam_date
+            setStudents(studentsList.map((s) => ({ ...s, last_exam_date: null })))
+            setLoading(false)
+          }
+          return
+        }
+
+        if (!enrollmentsData || enrollmentsData.length === 0) {
+          // ningún alumno inscripto a exámenes
+          if (mounted) {
+            setStudents(studentsList.map((s) => ({ ...s, last_exam_date: null })))
+            setLoading(false)
+          }
+          return
+        }
+
+        // 3) obtener los exam_ids únicos y traer sus fechas
+        const examIds = Array.from(new Set(enrollmentsData.map((e) => e.exam_id)))
+
+        const { data: examsData, error: examsErr } = await supabase
+          .from("exam")
+          .select("id, exam_date")
+          .in("id", examIds)
+
+        if (examsErr) {
+          console.error("Error fetching exams:", examsErr)
+          if (mounted) {
+            setStudents(studentsList.map((s) => ({ ...s, last_exam_date: null })))
+            setLoading(false)
+          }
+          return
+        }
+
+        // 4) construir un map examId -> exam_date
+        const examDateById = {}
+        ;(examsData || []).forEach((ex) => {
+          examDateById[ex.id] = ex.exam_date ? new Date(ex.exam_date).toISOString() : null
+        })
+
+        // 5) para cada student, buscar sus inscripciones y calcular la última fecha
+        const lastExamByStudent = {}
+        ;(enrollmentsData || []).forEach((en) => {
+          const examDate = examDateById[en.exam_id] || null
+          if (!lastExamByStudent[en.student_id]) {
+            lastExamByStudent[en.student_id] = examDate
+          } else {
+            const current = lastExamByStudent[en.student_id]
+            if (!current && examDate) lastExamByStudent[en.student_id] = examDate
+            else if (current && examDate && new Date(examDate) > new Date(current)) {
+              lastExamByStudent[en.student_id] = examDate
+            }
+          }
+        })
+
+        // 6) mergear en students
+        const studentsWithLastExam = studentsList.map((s) => ({
+          ...s,
+          last_exam_date: lastExamByStudent[s.id] || null
+        }))
+
+        if (mounted) {
+          setStudents(studentsWithLastExam)
+          setLoading(false)
+        }
+      } catch (err) {
+        console.error("fetchStudents exception:", err)
+        if (mounted) {
+          setStudents([])
+          setLoading(false)
+        }
       }
-
-      // obtener dojo_id del sensei
-      const { data: sensei } = await supabase
-        .from("sensei")
-        .select("dojo_id")
-        .eq("user_id", user.id)
-        .single()
-
-      if (!sensei?.dojo_id) {
-        setLoading(false)
-        return
-      }
-
-      // traer datos del dojo (nombre)
-      const { data: dojoData } = await supabase
-        .from("dojo")
-        .select("id, name")
-        .eq("id", sensei.dojo_id)
-        .single()
-
-      setDojo(dojoData)
-
-      // traer alumnos del dojo
-      const { data: studentsData } = await supabase
-        .from("student")
-        .select("id, full_name, birth_date, current_belt, registered_at")
-        .eq("dojo_id", sensei.dojo_id)
-        .eq("is_active", true);
-
-      setStudents(studentsData || [])
-      setLoading(false)
     }
 
     fetchStudents()
+    return () => {
+      mounted = false
+    }
   }, [])
 
   async function handleConfirmAdd() {
@@ -175,9 +291,9 @@ export function SenseiStudentList() {
         student: {
           full_name: newStudent.full_name,
           birth_date: newStudent.birth_date,
-          current_belt: newStudent.current_belt,
-        },
-      },
+          current_belt: newStudent.current_belt
+        }
+      }
     })
 
     if (error) {
@@ -185,13 +301,11 @@ export function SenseiStudentList() {
       return
     }
 
-    // data debería contener { email, password, student }
-    setStudents(prev => [...prev, data.student])
+    setStudents((prev) => [...prev, data.student])
     setShowAddForm(false)
     setShowConfirm(false)
     setNewStudent({ full_name: "", birth_date: "", current_belt: "" })
   }
-
 
   if (loading) {
     return <div className="p-8 text-gray-500">Cargando alumnos...</div>
@@ -416,55 +530,78 @@ export function SenseiStudentList() {
             )}
             {/* Tabla de alumnos */}
             <div className="bg-white shadow-lg border border-gray-200 overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-[#1a1a1a] text-white uppercase tracking-wide text-sm">
-                  <tr>
-                    <th className="px-6 py-4 text-left">Nombre y Apellido</th>
-                    <th className="px-6 py-4 text-left">Edad</th>
-                    <th className="px-6 py-4 text-left">Cinturón</th>
-                    <th className="px-6 py-4 text-left">Último examen</th>
-                    <th className="px-6 py-4 text-left">Detalle</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStudents.length === 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px]">
+                  <thead className="bg-[#1a1a1a] text-white uppercase tracking-wide text-sm">
                     <tr>
-                      <td colSpan={5} className="px-6 py-4 text-gray-500 text-center italic">
-                        No hay alumnos registrados
-                      </td>
+                      <th className="px-6 py-4 text-left">Nombre y Apellido</th>
+                      <th className="px-6 py-4 text-left">Edad</th>
+                      <th className="px-6 py-4 text-left">Cinturón</th>
+                      <th className="px-6 py-4 text-left">Último examen</th>
+                      <th className="px-6 py-4 text-left">Detalle</th>
                     </tr>
-                  ) : (
-                    filteredStudents.map(student => (
-                      <tr key={student.id} className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="px-6 py-4">{student.full_name}</td>
-                        <td className="px-6 py-4">
-                          {student.birth_date
-                            ? Math.floor(
-                                (Date.now() - new Date(student.birth_date).getTime()) /
-                                  (1000 * 60 * 60 * 24 * 365.25)
-                              )
-                            : "-"}
-                        </td>
-                        <td className="px-6 py-4">{student.current_belt}</td>
-                        <td className="px-6 py-4">
-                          {student.last_exam_date
-                            ? new Date(student.last_exam_date).toLocaleDateString("es-AR")
-                            : "-"}
-                        </td>
-                        <td className="px-6 py-4">
-                          <button
-                            onClick={() => setSelectedStudent(student)}
-                            className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
-                          >
-                            <Eye className="w-4 h-4" />
-                            Ver
-                          </button>
+                  </thead>
+
+                  <tbody>
+                    {filteredStudents.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-4 text-gray-500 text-center italic">
+                          No hay alumnos registrados
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      filteredStudents.map((student) => {
+                        const safeFormatDate = (iso) => {
+                          if (!iso) return null
+                          const d = new Date(iso)
+                          if (Number.isNaN(d.getTime())) return null
+                          return d.toLocaleDateString("es-AR")
+                        }
+
+                        const age = student.birth_date
+                          ? Math.floor(
+                              (Date.now() - new Date(student.birth_date).getTime()) /
+                                (1000 * 60 * 60 * 24 * 365.25)
+                            )
+                          : null
+
+                        return (
+                          <tr key={student.id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <td className="px-6 py-4">
+                              <div className="truncate font-medium">{student.full_name || "-"}</div>
+                            </td>
+
+                            <td className="px-6 py-4">{age !== null ? age : "-"}</td>
+
+                            <td className="px-6 py-4">{student.current_belt || "-"}</td>
+
+                            <td className="px-6 py-4">
+                              {student.last_exam_date ? (
+                                <time dateTime={student.last_exam_date}>
+                                  {safeFormatDate(student.last_exam_date)}
+                                </time>
+                              ) : (
+                                "-"
+                              )}
+                            </td>
+
+                            <td className="px-6 py-4">
+                              <button
+                                onClick={() => setSelectedStudent(student)}
+                                aria-label={`Ver detalle de ${student.full_name}`}
+                                className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
+                              >
+                                <Eye className="w-4 h-4" />
+                                Ver
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Modal de detalle */}
