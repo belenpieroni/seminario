@@ -94,24 +94,6 @@ export function SenseiStudentList() {
         if (filtersObj.beltCondition === "mayor" && beltIndex <= filterIndex) return false
       }
 
-      // Último examen (fecha exacta)
-      if (filtersObj.examDate) {
-        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null
-        if (!examDate || examDate.toISOString().split("T")[0] !== filtersObj.examDate) return false
-      }
-
-      // Rango de exámenes
-      if (filtersObj.examStart && filtersObj.examEnd) {
-        const examDate = student.last_exam_date ? new Date(student.last_exam_date) : null
-        if (
-          !examDate ||
-          examDate < new Date(filtersObj.examStart) ||
-          examDate > new Date(filtersObj.examEnd)
-        ) {
-          return false
-        }
-      }
-
       return true
     })
   }
@@ -187,23 +169,17 @@ export function SenseiStudentList() {
         const studentIds = studentsList.map((s) => s.id)
 
         // 2) traer todas las inscripciones de esos alumnos (exam_enrollment)
-        const { data: enrollmentsData, error: enrollErr } = await supabase
-          .from("exam_enrollment")
-          .select("student_id, exam_id")
-          .in("student_id", studentIds)
-
-        if (enrollErr) {
-          console.error("Error fetching enrollments:", enrollErr)
-          if (mounted) {
-            // seguimos sin last_exam_date
-            setStudents(studentsList.map((s) => ({ ...s, last_exam_date: null })))
-            setLoading(false)
-          }
-          return
-        }
+        const { data: enrollmentsData } = await supabase
+        .from("exam_enrollment")
+        .select(`
+          student_id,
+          exam_id,
+          exam:exam_id ( exam_date ),
+          exam_result ( present )
+        `)
+        .in("student_id", studentIds)
 
         if (!enrollmentsData || enrollmentsData.length === 0) {
-          // ningún alumno inscripto a exámenes
           if (mounted) {
             setStudents(studentsList.map((s) => ({ ...s, last_exam_date: null })))
             setLoading(false)
@@ -234,20 +210,21 @@ export function SenseiStudentList() {
           examDateById[ex.id] = ex.exam_date ? new Date(ex.exam_date).toISOString() : null
         })
 
-        // 5) para cada student, buscar sus inscripciones y calcular la última fecha
+        // 5) para cada student, buscar sus inscripciones y calcular la última fecha rendida
         const lastExamByStudent = {}
         ;(enrollmentsData || []).forEach((en) => {
-          const examDate = examDateById[en.exam_id] || null
-          if (!lastExamByStudent[en.student_id]) {
-            lastExamByStudent[en.student_id] = examDate
-          } else {
+          const examDate = en.exam?.exam_date ? new Date(en.exam.exam_date) : null
+          const result = Array.isArray(en.exam_result) ? en.exam_result[0] : en.exam_result
+          const present = result?.present
+
+          if (examDate && present === true && examDate <= new Date()) {
             const current = lastExamByStudent[en.student_id]
-            if (!current && examDate) lastExamByStudent[en.student_id] = examDate
-            else if (current && examDate && new Date(examDate) > new Date(current)) {
-              lastExamByStudent[en.student_id] = examDate
+            if (!current || examDate > new Date(current)) {
+              lastExamByStudent[en.student_id] = examDate.toISOString()
             }
           }
         })
+
 
         // 6) mergear en students
         const studentsWithLastExam = studentsList.map((s) => ({

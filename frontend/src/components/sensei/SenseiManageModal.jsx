@@ -6,7 +6,17 @@ import { EditableRow } from "../common/EditableRow";
 export function SenseiManageModal({ senseiId, dojoId, onClose, onSave }) {
   const [sensei, setSensei] = useState(null);
   const [saving, setSaving] = useState(false);
-
+  const DAN_GRADES = [
+    "1er Dan",
+    "2do Dan",
+    "3er Dan",
+    "4to Dan",
+    "5to Dan",
+    "6to Dan",
+    "7mo Dan",
+    "8vo Dan",
+    "9no Dan",
+  ]
   useEffect(() => {
     async function load() {
       const data = await getSenseiById(senseiId);
@@ -15,7 +25,6 @@ export function SenseiManageModal({ senseiId, dojoId, onClose, onSave }) {
     load();
   }, [senseiId]);
 
-  // 🔒 Protección obligatoria
   if (!sensei) return null;
 
   async function handleDelete() {
@@ -42,7 +51,6 @@ export function SenseiManageModal({ senseiId, dojoId, onClose, onSave }) {
 
     setSensei(merged);
 
-    // ✅ Avisar al padre SOLO los campos editados
     onSave({
       id: sensei.id,
       full_name: merged.full_name,
@@ -71,12 +79,28 @@ export function SenseiManageModal({ senseiId, dojoId, onClose, onSave }) {
             onSave={(v) => updateField("full_name", v)}
           />
 
-          {/* Grado (Dan) */}
-          <EditableRow
-            label="Grado (Dan)"
-            value={sensei.dan_grade}
-            onSave={(v) => updateField("dan_grade", v)}
-          />
+          {/* Grado (Dan) como select */}
+          <div className="space-y-2">
+            <label className="text-sm text-gray-600 uppercase tracking-wide">Grado (Dan)</label>
+            <div className="flex gap-2 items-center">
+              <select
+                value={sensei.dan_grade || ""}
+                onChange={(e) => updateField("dan_grade", e.target.value)}
+                className="px-3 py-2 border rounded"
+                disabled={saving}
+              >
+                <option value="">Seleccionar grado</option>
+                {DAN_GRADES.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+              <span className="text-sm text-gray-500">
+                Actual: <span className="font-medium">{sensei.dan_grade || "-"}</span>
+              </span>
+            </div>
+          </div>
 
           {/* Registrado en el sistema */}
           <div className="flex justify-between items-center bg-gray-50 p-3">
@@ -85,14 +109,6 @@ export function SenseiManageModal({ senseiId, dojoId, onClose, onSave }) {
               {sensei.registered_at
                 ? new Date(sensei.registered_at).toLocaleDateString("es-AR")
                 : "-"}
-            </div>
-          </div>
-
-          {/* Debe cambiar contraseña */}
-          <div className="flex justify-between items-center bg-gray-50 p-3">
-            <div>
-              <p className="text-gray-600">Debe cambiar contraseña</p>
-              {sensei.must_change_password ? "Sí" : "No"}
             </div>
           </div>
 

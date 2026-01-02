@@ -350,6 +350,11 @@ export function StudentManageModal({ studentId, dojoId, onClose, onSave }) {
 
         {/* Content */}
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
+          {/* Registrado en el sistema */}
+          <div className="text-sm">
+            <span className="font-light uppercase tracking-wide text-gray-600">Registrado el:</span>{" "}
+            <span className="text-[#1a1a1a] font-medium">{new Date(student.registered_at).toLocaleDateString("es-AR")}</span>
+          </div>
           {/* Nombre y apellido */}
           <EditableRow label="Nombre y Apellido" value={student.full_name} onSave={(v) => updateField("full_name", v)} />
 
@@ -395,18 +400,29 @@ export function StudentManageModal({ studentId, dojoId, onClose, onSave }) {
               <p className="text-gray-500 italic">No tiene exámenes registrados</p>
             ) : (
               <div className="space-y-3">
-                {exams.map((ex) => {
-                  const examDate = ex.exam_date
-                    ? new Date(ex.exam_date).toLocaleDateString("es-AR")
-                    : "-"
+                {exams
+                  // mostrar solo exámenes pasados con resultado
+                  .filter((ex) => {
+                    const examDate = ex.exam_date ? new Date(ex.exam_date) : null
+                    const now = new Date()
 
-                  // valores seguros desde el objeto merged
-                  const enrollmentId = ex.enrollmentId
-                  const currentBelt = ex.beltRend ?? ex.belt ?? ""
-                  const resultFinal = ex.result?.final_grade ?? ""
-                  const resultPresent = typeof ex.result?.present === "boolean" ? ex.result.present : false
+                    const hasResult = !!ex.result
+                    const isPast = examDate && examDate.getTime() <= now.getTime()
 
-                  return (
+                    return hasResult || isPast
+                  })
+                  .map((ex) => {
+                    const examDate = ex.exam_date
+                      ? new Date(ex.exam_date).toLocaleDateString("es-AR")
+                      : "-"
+
+                    const enrollmentId = ex.enrollmentId
+                    const currentBelt = ex.beltRend ?? ex.belt ?? ""
+                    const resultFinal = ex.result?.final_grade ?? ""
+                    const resultPresent =
+                      typeof ex.result?.present === "boolean" ? ex.result.present : false
+
+                    return (
                     <div
                       key={enrollmentId}
                       className="bg-gray-50 border border-gray-200 p-3 rounded flex flex-col md:flex-row md:items-center md:justify-between gap-3"
@@ -621,12 +637,6 @@ export function StudentManageModal({ studentId, dojoId, onClose, onSave }) {
                 })}
               </div>
             )}
-          </div>
-
-          {/* Registrado en el sistema */}
-          <div className="text-sm">
-            <span className="font-light uppercase tracking-wide text-gray-600">Registrado el:</span>{" "}
-            <span className="text-[#1a1a1a] font-medium">{new Date(student.registered_at).toLocaleDateString("es-AR")}</span>
           </div>
         </div>
 

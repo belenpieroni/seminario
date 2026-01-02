@@ -65,7 +65,7 @@ export default function SenseiExamDetail({ examId, onBack }) {
                   <td className="p-2">{enr.studentName}</td>
                   <td className="p-2">{enr.studentDojo}</td>
                   <td className="p-2">{enr.currentBelt}</td>
-                  <td className="p-2 text-green-600 uppercase text-left">{yaRindio ? "Rendido" : enr.belt}</td>
+                  <td className="p-2 uppercase">{yaRindio ? "Rendido" : enr.belt}</td>
                   <td className="px-6 py-4">
                     <button
                       onClick={() => setSelectedEnrollment(enr)}
