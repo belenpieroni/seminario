@@ -1,0 +1,35 @@
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+
+export async function pdfGenerate({ studentName, belt, examDate, senseiName }) {
+  try {
+    console.log("📄 Iniciando generación de certificado para:", studentName)
+
+    // 1. Cargar la plantilla PDF desde public/
+    const existingPdfBytes = await fetch('/certificado_base.pdf').then(res => res.arrayBuffer())
+    console.log("✅ Plantilla PDF cargada")
+
+    // 2. Abrir el PDF
+    const pdfDoc = await PDFDocument.load(existingPdfBytes)
+    const page = pdfDoc.getPages()[0]
+
+    // 3. Fuente y color
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+    const color = rgb(0, 0, 0)
+
+    // 4. Escribir los datos en las coordenadas
+    console.log("✍️ Escribiendo datos:", { studentName, belt, examDate, senseiName })
+    page.drawText(studentName, { x: 330, y: 335, size: 25, font, color })
+    page.drawText(belt,        { x: 375, y: 230, size: 25, font, color })
+    page.drawText(examDate,    { x: 390, y: 140, size: 18, font, color })
+    page.drawText(senseiName,  { x: 150, y: 100, size: 14, font, color })
+
+    // 5. Guardar el nuevo PDF en memoria
+    const pdfBytes = await pdfDoc.save()
+    console.log("✅ PDF generado en memoria, tamaño:", pdfBytes.length)
+
+    return pdfBytes
+  } catch (err) {
+    console.error("❌ Error en pdfGenerate:", err)
+    throw err
+  }
+}

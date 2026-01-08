@@ -96,9 +96,13 @@ export async function getExamDetail(examId) {
       id,
       exam_date,
       observations,
-      location_dojo:location_dojo_id(name),
+      location_dojo:location_dojo_id (
+        name,
+        head_sensei:head_sensei_id (full_name)
+      ),
       enrollments:exam_enrollment(
         id,
+        exam_id,
         student_id,
         belt,
         enrolled_at,
@@ -118,25 +122,22 @@ export async function getExamDetail(examId) {
     return null
   }
 
-  console.log("✅ Datos crudos de Supabase:", data)
-
   return {
     id: data.id,
     date: new Date(data.exam_date).toLocaleDateString("es-AR"),
     locationDojo: data.location_dojo?.name || "Sede desconocida",
+    senseiName: data.location_dojo?.head_sensei?.full_name || "Sensei desconocido", // ⚠️ ahora correcto
     observations: data.observations,
-    enrollments: data.enrollments.map((enr) => {
-      console.log("📌 Enrollment recibido:", enr)
-      return {
-        id: enr.id,
-        studentId: enr.student_id,              
-        studentName: enr.student?.full_name,
-        studentDojo: enr.student?.dojo?.name,
-        currentBelt: enr.student?.current_belt,
-        belt: enr.belt,                     
-        enrolledAt: new Date(enr.enrolled_at).toLocaleDateString("es-AR"),
-      }
-    }),
+    enrollments: data.enrollments.map((enr) => ({
+      id: enr.id,
+      examId: enr.exam_id,
+      studentId: enr.student_id,
+      studentName: enr.student?.full_name,
+      studentDojo: enr.student?.dojo?.name,
+      currentBelt: enr.student?.current_belt,
+      belt: enr.belt,
+      enrolledAt: new Date(enr.enrolled_at).toLocaleDateString("es-AR"),
+    })),
   }
 }
 

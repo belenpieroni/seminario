@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "../../supabaseClient"
 import { updateStudentBelt } from "../../queries/studentQueries"
+import { pdfGenerate } from "../../utils/pdfGenerate"
 import { X } from "lucide-react"
 
 const gradeOptions = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "E", "F"]
@@ -17,18 +18,20 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [alreadySubmitted, setAlreadySubmitted] = useState(false)
 
+  // Cargar nombre del alumno desde tabla student
   useEffect(() => {
     const fetchStudent = async () => {
       const { data, error } = await supabase
         .from("student")
         .select("full_name")
-        .eq("id", enrollment.student_id)
+        .eq("id", enrollment.studentId)
         .single()
       if (!error && data) setStudentName(data.full_name)
     }
-    if (enrollment?.student_id) fetchStudent()
-  }, [enrollment.student_id])
+    if (enrollment?.studentId) fetchStudent()
+  }, [enrollment.studentId])
 
+  // Verificar si ya existe resultado
   useEffect(() => {
     const checkExistingResult = async () => {
       const { data, error } = await supabase
@@ -62,6 +65,7 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
   const handleConfirmSubmit = async () => {
     setLoading(true)
 
+    // 1) Insertar resultado del examen
     const { error: insertError } = await supabase
       .from("exam_result")
       .insert({
@@ -79,18 +83,68 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
       alert("No se pudo guardar el resultado.")
       return
     }
+    console.log("✅ exam_result insertado correctamente")
 
+    // 2) Verificar aprobación
     const approvedGrades = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"]
     const isApproved = approvedGrades.includes(finalGrade)
 
     if (isApproved) {
       try {
+        // Actualizar cinturón
+        console.log("🎓 Alumno aprobado, actualizando cinturón...")
         const updated = await updateStudentBelt(enrollment.studentId, enrollment.belt)
+        console.log("✅ Cinturón actualizado:", updated)
         alert(`Resultado guardado y grado actualizado a ${updated[0].current_belt}`)
+
+        // Generar certificado PDF
+        console.log("📄 Generando certificado PDF...")
+        const pdfBytes = await pdfGenerate({
+          studentName: enrollment.studentName || studentName || "Alumno",
+          belt: enrollment.belt,
+          examDate: new Date().toLocaleDateString("es-AR"),
+          senseiName: enrollment.senseiName || "Sensei desconocido",
+        })
+
+        // 3) Subir PDF a Storage
+        const safeName = (enrollment.studentName || studentName || "Alumno").trim()
+        const fileName = `certificados/${safeName}-${Date.now()}.pdf`
+        console.log("📤 Subiendo PDF a Supabase Storage:", fileName)
+        const { error: uploadErr } = await supabase.storage
+          .from("certificados")
+          .upload(fileName, new Blob([pdfBytes], { type: "application/pdf" }))
+        if (uploadErr) throw uploadErr
+        console.log("✅ PDF subido a Storage")
+
+        // 4) Registrar certificado en tabla certificate
+        console.log("🗂️ Insertando registro en certificate...")
+        const certPayload = {
+          student_id: enrollment.studentId,      // camelCase -> snake_case
+          exam_id: enrollment.examId,            // camelCase -> snake_case (ANTES estaba null)
+          belt: enrollment.belt,
+          pdf_url: fileName,
+          is_valid: false,
+        }
+        if (!enrollment.studentId || !enrollment.examId) {
+          console.error("❌ Faltan IDs:", { 
+            studentId: enrollment.studentId, 
+            examId: enrollment.examId, }) 
+            alert("Faltan datos de la inscripción (studentId/examId). No se puede registrar el certificado.")
+          setLoading(false)
+          setShowConfirm(false)
+          return
+        }
+        console.log("📦 certPayload:", certPayload)
+        const { error: certError } = await supabase.from("certificate").insert(certPayload)
+        if (certError) throw certError
+        console.log("✅ Registro insertado en certificate")
+
       } catch (err) {
-        alert("El resultado se guardó, pero no se pudo actualizar el grado del alumno.")
+        console.error("❌ Error generando o guardando certificado:", err)
+        alert("El resultado se guardó, pero hubo un error al generar el certificado.")
       }
     } else {
+      console.log("ℹ️ Alumno desaprobado, no se genera certificado")
       alert("Resultado guardado. El alumno no aprobó, por lo que su grado no se actualiza.")
     }
 
