@@ -21,7 +21,7 @@ export async function pdfGenerate({ studentName, belt, examDate, senseiName }) {
     page.drawText(studentName, { x: 330, y: 335, size: 25, font, color })
     page.drawText(belt,        { x: 375, y: 230, size: 25, font, color })
     page.drawText(examDate,    { x: 390, y: 140, size: 18, font, color })
-    page.drawText(senseiName,  { x: 150, y: 100, size: 14, font, color })
+    page.drawText(senseiName,  { x: 140, y: 100, size: 14, font, color })
 
     // 5. Guardar el nuevo PDF en memoria
     const pdfBytes = await pdfDoc.save()

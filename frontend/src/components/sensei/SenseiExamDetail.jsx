@@ -68,7 +68,7 @@ export default function SenseiExamDetail({ examId, onBack }) {
                   <td className="p-2 uppercase">{yaRindio ? "Rendido" : enr.belt}</td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() => setSelectedEnrollment(enr)}
+                      onClick={() => setSelectedEnrollment({ ...enr, senseiName: exam.senseiName })}
                       className="flex items-center gap-2 px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
                     >
                       <Plus className="w-4 h-4" />
