@@ -20,6 +20,7 @@ import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
 import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
 import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
 import { SenseiExams } from "./components/sensei/SenseiExams"
+import CertificateSenseiList from "./components/certificate/CertificateSenseiList"
 import SenseiNotifications from "./components/sensei/SenseiNotifications"
 import SenseiExamList from "./components/sensei/SenseiExamList"
 import DojoSenseis from "./components/sensei/DojoSenseis"
@@ -168,6 +169,7 @@ export default function App() {
                 <Route path="/sensei/manage-exams" element={<SenseiExamList />} />
                 <Route path="/sensei/exams" element={<SenseiExams />} />
                 <Route path="/sensei/notifications" element={<SenseiNotifications />} />
+                <Route path="/sensei/certificados" element={<CertificateSenseiList />} />
 
                 {/* STUDENT */}
                 <Route path="/student/dashboard" element={<StudentDashboard />} />

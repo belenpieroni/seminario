@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "../../supabaseClient"
 import { Combobox } from "@headlessui/react"
+import { ChevronDown, ChevronUp } from "lucide-react"
 import { getDojos } from "../../queries/dojoQueries"
 import { BackButton } from "../common/BackButton"
 
@@ -126,32 +127,45 @@ export default function CreateExamForm({ senseiId, dojoId, onExamCreated, onBack
             Dojo
         </label>
         <Combobox value={locationDojo} onChange={setLocationDojo}>
+        {({ open }) => (
+            <div className="relative">
             <Combobox.Input
-            className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
-            displayValue={(dojo) => dojo?.name || ""}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar dojo..."
+                className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
+                displayValue={(dojo) => dojo?.name || ""}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar dojo..."
             />
 
-            <Combobox.Options className="absolute z-10 mt-1 w-full bg-white border border-gray-200 shadow-lg max-h-60 overflow-auto">
-            {filteredDojos.length === 0 && (
-                <div className="p-3 text-gray-500 italic">No hay resultados</div>
-            )}
+            {/* Botón con flecha */}
+            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                {open ? (
+                <ChevronUp className="h-5 w-5 text-gray-500" />
+                ) : (
+                <ChevronDown className="h-5 w-5 text-gray-500" />
+                )}
+            </Combobox.Button>
 
-            {filteredDojos.map((dojo) => (
+            <Combobox.Options className="absolute z-10 mt-1 w-full bg-white border border-gray-200 shadow-lg max-h-60 overflow-auto">
+                {filteredDojos.length === 0 && (
+                <div className="p-3 text-gray-500 italic">No hay resultados</div>
+                )}
+
+                {filteredDojos.map((dojo) => (
                 <Combobox.Option
-                key={dojo.id}
-                value={dojo}
-                className={({ active }) =>
+                    key={dojo.id}
+                    value={dojo}
+                    className={({ active }) =>
                     `cursor-pointer px-4 py-2 ${
-                    active ? "bg-[#c41e3a] text-white" : "text-[#1a1a1a]"
+                        active ? "bg-[#c41e3a] text-white" : "text-[#1a1a1a]"
                     }`
-                }
+                    }
                 >
-                {dojo.name} — Sensei: {dojo.senseiInCharge}
+                    {dojo.name} — Sensei: {dojo.senseiInCharge}
                 </Combobox.Option>
-            ))}
+                ))}
             </Combobox.Options>
+            </div>
+        )}
         </Combobox>
         </div>
 
