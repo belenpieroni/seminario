@@ -157,8 +157,92 @@ export default function SenseiNotifications() {
             Redactar
           </button>
 
-          {/* Panel redactar */}
-          {/* ... tu compose panel aquí */}
+          {composeOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+              <div className="bg-white w-full max-w-lg shadow-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-[#1a1a1a] text-2xl font-semibold">Redactar notificación</h3>
+                  <button
+                    onClick={() => setComposeOpen(false)}
+                    className="text-gray-500 hover:text-[#c41e3a]"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Campo título */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Título</label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full border-b-2 border-[#c41e3a] focus:border-[#a01830] outline-none pb-2 text-lg"
+                    placeholder="Escribe el título..."
+                  />
+                </div>
+
+                {/* Campo cuerpo */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Mensaje</label>
+                  <textarea
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    placeholder="Escribe el mensaje..."
+                    rows={8}
+                    className="w-full border border-gray-300 p-4 focus:border-[#c41e3a] outline-none resize-none"
+                  />
+                </div>
+
+                {/* Adjuntos */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Adjuntos</label>
+                  <div className="flex items-center gap-3">
+                    <label className="cursor-pointer flex items-center gap-2 text-[#c41e3a] hover:text-[#a01830]">
+                      <Paperclip className="w-4 h-4" />
+                      <span>Agregar archivo</span>
+                      <input
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  </div>
+                  {attachments.length > 0 && (
+                    <ul className="mt-2 space-y-2">
+                      {attachments.map((file, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-center justify-between text-sm text-gray-700 border-b pb-1"
+                        >
+                          <span className="truncate">{file.name}</span>
+                          <button
+                            onClick={() => removeAttachment(idx)}
+                            className="text-gray-400 hover:text-[#c41e3a]"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Botón enviar */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleSend}
+                    disabled={sending}
+                    className="flex items-center gap-2 bg-[#c41e3a] text-white px-4 py-2 uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors disabled:opacity-50"
+                  >
+                    <Send className="w-4 h-4" />
+                    {sending ? "Enviando..." : "Enviar"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
