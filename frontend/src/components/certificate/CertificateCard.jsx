@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react"
 import { supabase } from "../../supabaseClient"
 import ConfirmModal from "./ConfirmModal"
 
-export default function CertificateCard({ certificate, onDownload, onValidated, mode = "sensei" }) {
+export default function CertificateCard({ certificate, onDownload, onValidated, mode = "no-admin" }) {
   const [showObs, setShowObs] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [action, setAction] = useState(null)
@@ -24,7 +24,7 @@ export default function CertificateCard({ certificate, onDownload, onValidated, 
           .eq("id", certificate.id)
 
         if (error) throw error
-        alert("✅ Certificado validado correctamente")
+        alert("Certificado validado correctamente")
         onValidated?.(certificate.id)
       } catch (err) {
         console.error("Error validando certificado:", err)
@@ -42,7 +42,7 @@ export default function CertificateCard({ certificate, onDownload, onValidated, 
           .eq("id", certificate.id)
 
         if (error) throw error
-        alert("❌ Certificado revocado correctamente")
+        alert("Certificado revocado correctamente")
         onValidated?.(certificate.id)
       } catch (err) {
         console.error("Error revocando certificado:", err)

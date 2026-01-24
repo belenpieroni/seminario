@@ -31,6 +31,7 @@ import { StudentDashboard } from "./components/student/StudentDashboard"
 import { StudentExams } from "./components/student/StudentExams"
 import StudentProgress from "./components/student/StudentProgress"
 import { StudentNotifications } from "./components/student/StudentNotifications"
+import StudentCertificates from "./components/student/StudentCertificates"
 //Import utils
 import { login } from "./utils/auth"
 
@@ -176,7 +177,7 @@ export default function App() {
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
                 <Route path="/student/progress" element={<StudentProgress />} />
                 <Route path="/student/notifications" element={<StudentNotifications />} />
-                <Route path="/student/certificados" element={<StudentDashboard />} />
+                <Route path="/student/certificados" element={<StudentCertificates />} />
                 <Route path="/student/exams" element={<StudentExams />} />
 
                 {/* ADMIN / ASOCIACIÓN */}

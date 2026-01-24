@@ -169,7 +169,7 @@ export default function CertificateList({ dojoId }) {
             key={cert.id}
             certificate={cert}
             onDownload={handleDownload}
-            mode="sensei"
+            mode="no-admin"
           />
         ))
       )}

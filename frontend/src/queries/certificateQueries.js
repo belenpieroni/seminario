@@ -111,6 +111,10 @@ export async function getValidatedCertificatesByDojo(dojoId) {
 
 // certificados validados de un alumno
 export async function getValidatedCertificatesByStudent(studentId) {
+  if (!studentId) {
+    return []
+  }
+
   const { data, error } = await supabase
     .from("certificate")
     .select(`
@@ -123,11 +127,11 @@ export async function getValidatedCertificatesByStudent(studentId) {
       exam:exam_id(exam_date, dojo:dojo_id(name), location_dojo:location_dojo_id(name))
     `)
     .eq("student_id", studentId)
-    .eq("is_valid", true) // solo validados
+    .eq("is_valid", true)
     .order("validated_at", { ascending: false })
 
   if (error) {
-    console.error("Error cargando certificados del alumno:", error)
+    console.error("❌ Error cargando certificados del alumno:", error)
     return []
   }
   return data || []
