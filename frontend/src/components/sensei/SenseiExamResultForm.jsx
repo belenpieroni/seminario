@@ -83,7 +83,6 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
       alert("No se pudo guardar el resultado.")
       return
     }
-    console.log("✅ exam_result insertado correctamente")
 
     // 2) Verificar aprobación
     const approvedGrades = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"]
@@ -92,52 +91,61 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
     if (isApproved) {
       try {
         // Actualizar cinturón
-        console.log("🎓 Alumno aprobado, actualizando cinturón...")
         const updated = await updateStudentBelt(enrollment.studentId, enrollment.belt)
-        console.log("✅ Cinturón actualizado:", updated)
         alert(`Resultado guardado y grado actualizado a ${updated[0].current_belt}`)
 
         // Generar certificado PDF
-        console.log("📄 Generando certificado PDF...")
         const pdfBytes = await pdfGenerate({
           studentName: enrollment.studentName || studentName || "Alumno",
           belt: enrollment.belt,
           examDate: new Date().toLocaleDateString("es-AR"),
-          senseiName: enrollment.senseiName || "Sensei desconocido",
+          senseiName: enrollment.senseiName,
         })
 
         // 3) Subir PDF a Storage
         const safeName = (enrollment.studentName || studentName || "Alumno").trim()
         const fileName = `certificados/${safeName}-${Date.now()}.pdf`
-        console.log("📤 Subiendo PDF a Supabase Storage:", fileName)
         const { error: uploadErr } = await supabase.storage
           .from("certificados")
           .upload(fileName, new Blob([pdfBytes], { type: "application/pdf" }))
         if (uploadErr) throw uploadErr
-        console.log("✅ PDF subido a Storage")
 
         // 4) Registrar certificado en tabla certificate
-        console.log("🗂️ Insertando registro en certificate...")
-        const certPayload = {
-          student_id: enrollment.studentId,      // camelCase -> snake_case
-          exam_id: enrollment.examId,            // camelCase -> snake_case (ANTES estaba null)
-          belt: enrollment.belt,
-          pdf_url: fileName,
-          is_valid: false,
-        }
         if (!enrollment.studentId || !enrollment.examId) {
-          console.error("❌ Faltan IDs:", { 
-            studentId: enrollment.studentId, 
-            examId: enrollment.examId, }) 
-            alert("Faltan datos de la inscripción (studentId/examId). No se puede registrar el certificado.")
+          alert("Faltan datos de la inscripción (studentId/examId). No se puede registrar el certificado.")
           setLoading(false)
           setShowConfirm(false)
           return
         }
-        console.log("📦 certPayload:", certPayload)
-        const { error: certError } = await supabase.from("certificate").insert(certPayload)
+
+        // Insertar certificado primero (sin hash) para obtener issued_at
+        const { data: insertedCert, error: certError } = await supabase
+          .from("certificate")
+          .insert({
+            student_id: enrollment.studentId,
+            exam_id: enrollment.examId,
+            belt: enrollment.belt,
+            pdf_url: fileName,
+            is_valid: false,
+          })
+          .select()
+
         if (certError) throw certError
-        console.log("✅ Registro insertado en certificate")
+
+        // Generar hash usando issued_at de la BBDD
+        const issuedAt = insertedCert[0].issued_at
+        const dataToHash = `${enrollment.studentId}-${enrollment.examId}-${enrollment.belt}-${issuedAt}`
+        const encoder = new TextEncoder()
+        const data = encoder.encode(dataToHash)
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+        const hashArray = Array.from(new Uint8Array(hashBuffer))
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("")
+
+        // Actualizar el certificado con el hash
+        await supabase
+          .from("certificate")
+          .update({ hash: hashHex })
+          .eq("id", insertedCert[0].id)
 
       } catch (err) {
         console.error("❌ Error generando o guardando certificado:", err)

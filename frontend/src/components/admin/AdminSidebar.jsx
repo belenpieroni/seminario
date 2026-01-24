@@ -1,4 +1,4 @@
-import { Building2, UserPlus, Users, LogOut } from "lucide-react"
+import { Building2, UserPlus, Users, LogOut, Award } from "lucide-react"
 import { useNavigate, useLocation } from "react-router-dom"
 
 export default function AdminSidebar({ onLogout }) {
@@ -8,7 +8,8 @@ export default function AdminSidebar({ onLogout }) {
   const menuItems = [
     { path: "/admin/dashboard", label: "Dojos", icon: Building2 },
     { path: "/admin/senseis", label: "Senseis", icon: Users },
-    { path: "/admin/crear-dojo", label: "Crear Dojo", icon: UserPlus }
+    { path: "/admin/crear-dojo", label: "Crear Dojo", icon: UserPlus },
+    { path: "/admin/certificados", label: "Certificados", icon: Award }
   ]
 
   return (

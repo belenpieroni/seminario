@@ -14,13 +14,14 @@ import PublicLanding from "./components/PublicLanding"
 import AdminSidebar from "./components/admin/AdminSidebar"
 import { AdminDojoList } from "./components/admin/AdminDojoList"
 import { AdminSenseiList } from "./components/admin/AdminSenseiList"
+import AdminCertificates from "./components/admin/AdminCertificates"
 import AdminCreateDojo from "./components/admin/AdminCreateDojo"
 //Imports componentes sensei
 import { SenseiSidebar } from "./components/sensei/SenseiSidebar"
 import { SenseiDashboard } from "./components/sensei/SenseiDashboard"
 import { SenseiStudentList } from "./components/sensei/SenseiStudentList"
 import { SenseiExams } from "./components/sensei/SenseiExams"
-import CertificateSenseiList from "./components/certificate/CertificateSenseiList"
+import CertificateList from "./components/certificate/CertificateList"
 import SenseiNotifications from "./components/sensei/SenseiNotifications"
 import SenseiExamList from "./components/sensei/SenseiExamList"
 import DojoSenseis from "./components/sensei/DojoSenseis"
@@ -169,7 +170,7 @@ export default function App() {
                 <Route path="/sensei/manage-exams" element={<SenseiExamList />} />
                 <Route path="/sensei/exams" element={<SenseiExams />} />
                 <Route path="/sensei/notifications" element={<SenseiNotifications />} />
-                <Route path="/sensei/certificados" element={<CertificateSenseiList />} />
+                <Route path="/sensei/certificados" element={<CertificateList />} />
 
                 {/* STUDENT */}
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
@@ -182,6 +183,7 @@ export default function App() {
                 <Route path="/admin/dashboard" element={<AdminDojoList />} />
                 <Route path="/admin/senseis" element={<AdminSenseiList />} />
                 <Route path="/admin/crear-dojo" element={<AdminCreateDojo />} />
+                <Route path="/admin/certificados" element={<AdminCertificates />} />
               </Routes>
             </main>
           </div>
