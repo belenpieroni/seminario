@@ -1,7 +1,6 @@
-// certificateQueries.js
 import { supabase } from "../supabaseClient"
 
-// traer todos los certificados (ordenados por fecha de emisión, más recientes primero)
+// Todos los certificados (ordenados por fecha de emisión, más recientes primero)
 export async function getAllCertificates() {
   const { data, error } = await supabase
     .from("certificate")
@@ -18,14 +17,15 @@ export async function getAllCertificates() {
     .order("issued_at", { ascending: false })
 
   if (error) {
-    console.error("Error cargando certificados:", error)
+    console.error("❌ Error cargando todos los certificados:", error)
     return []
   }
   return data || []
 }
 
-// Certificados del dojo del sensei (vista local por defecto)
+// Certificados (todos, validados o no) de un dojo específico (para sensei)
 export async function getCertificatesByDojo(dojoId) {
+  if (!dojoId) return []
   const { data, error } = await supabase
     .from("certificate")
     .select(`
@@ -34,19 +34,19 @@ export async function getCertificatesByDojo(dojoId) {
       pdf_url,
       issued_at,
       is_valid,
-      student:student_id (full_name),
+      student:student_id(full_name),
       exam:exam_id!inner (
         exam_date,
         observations,
-        location_dojo:location_dojo_id (name),
-        dojo:dojo_id (name)
+        location_dojo:location_dojo_id(name),
+        dojo:dojo_id(name)
       )
     `)
     .eq("exam.dojo_id", dojoId)
     .order("issued_at", { ascending: false })
 
   if (error) {
-    console.error("Error cargando certificados:", error)
+    console.error("❌ Error cargando certificados del dojo:", error)
     return []
   }
   return data || []
@@ -62,26 +62,27 @@ export async function getAllValidatedCertificates() {
       pdf_url,
       issued_at,
       is_valid,
-      student:student_id (full_name),
-      exam:exam_id (
+      student:student_id(full_name),
+      exam:exam_id(
         exam_date,
         observations,
-        location_dojo:location_dojo_id (name),
-        dojo:dojo_id (name)
+        location_dojo:location_dojo_id(name),
+        dojo:dojo_id(name)
       )
     `)
     .eq("is_valid", true)
     .order("issued_at", { ascending: false })
 
   if (error) {
-    console.error("Error cargando certificados validados:", error)
+    console.error("❌ Error cargando certificados validados:", error)
     return []
   }
   return data || []
 }
 
-// Certificados validados filtrados por dojo del alumno (vista global con filtro)
+// Certificados validados filtrados por dojo (vista global con filtro)
 export async function getValidatedCertificatesByDojo(dojoId) {
+  if (!dojoId) return []
   const { data, error } = await supabase
     .from("certificate")
     .select(`
@@ -90,12 +91,12 @@ export async function getValidatedCertificatesByDojo(dojoId) {
       pdf_url,
       issued_at,
       is_valid,
-      student:student_id (full_name),
-      exam:exam_id!inner (
+      student:student_id(full_name),
+      exam:exam_id!inner(
         exam_date,
         observations,
-        location_dojo:location_dojo_id (name),
-        dojo:dojo_id (name)
+        location_dojo:location_dojo_id(name),
+        dojo:dojo_id(name)
       )
     `)
     .eq("is_valid", true)
@@ -103,18 +104,15 @@ export async function getValidatedCertificatesByDojo(dojoId) {
     .order("issued_at", { ascending: false })
 
   if (error) {
-    console.error("Error cargando certificados validados por dojo:", error)
+    console.error("❌ Error cargando certificados validados por dojo:", error)
     return []
   }
   return data || []
 }
 
-// certificados validados de un alumno
+// Certificados validados de un alumno específico
 export async function getValidatedCertificatesByStudent(studentId) {
-  if (!studentId) {
-    return []
-  }
-
+  if (!studentId) return []
   const { data, error } = await supabase
     .from("certificate")
     .select(`

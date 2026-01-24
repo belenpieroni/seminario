@@ -14,7 +14,7 @@ export default function CertificateList({ dojoId }) {
   const [query, setQuery] = useState("")
   const [dojos, setDojos] = useState([])
 
-  // 🔑 cargar todos los dojos para el combobox
+  // cargar todos los dojos para el combobox
   useEffect(() => {
     const fetchDojos = async () => {
       const { data, error } = await supabase
@@ -31,7 +31,7 @@ export default function CertificateList({ dojoId }) {
     fetchDojos()
   }, [])
 
-  // 🔑 cargar certificados según vista
+  // cargar certificados según vista
   useEffect(() => {
     const fetchCertificates = async () => {
       setLoading(true)
@@ -54,7 +54,7 @@ export default function CertificateList({ dojoId }) {
     fetchCertificates()
   }, [showGlobal, locationDojo, dojoId])
 
-  // 🔎 filtro de búsqueda por alumno, fecha o grado
+  // filtro de búsqueda por alumno, fecha o grado
   const filtered = certificates.filter((cert) => {
     const studentName = cert.student?.full_name?.toLowerCase() || ""
     const examDate = new Date(cert.exam?.exam_date).toLocaleDateString("es-AR")
@@ -89,9 +89,11 @@ export default function CertificateList({ dojoId }) {
 
   return (
     <div className="p-8">
-      <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a] mb-6">
-        Certificados
-      </h2>
+      <div className="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <h2 className="text-2xl font-light uppercase tracking-wide text-[#1a1a1a]">
+          Certificados
+        </h2>
+      </div>
 
       <div className="flex items-center gap-4 mb-6">
         <button

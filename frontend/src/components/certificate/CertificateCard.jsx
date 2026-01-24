@@ -77,7 +77,12 @@ export default function CertificateCard({ certificate, onDownload, onValidated, 
         </div>
         <button
           onClick={() => onDownload(certificate.pdf_url)}
-          className="px-4 py-2 border border-[#c41e3a] text-[#c41e3a] uppercase text-xs tracking-wide hover:bg-[#c41e3a] hover:text-white transition-colors"
+          disabled={!certificate.is_valid}
+          className={`px-4 py-2 border uppercase text-xs tracking-wide transition-colors
+            ${certificate.is_valid
+              ? "border-[#c41e3a] text-[#c41e3a] hover:bg-[#c41e3a] hover:text-white"
+              : "border-gray-300 text-gray-400 cursor-not-allowed"
+            }`}
         >
           Ver certificado
         </button>
