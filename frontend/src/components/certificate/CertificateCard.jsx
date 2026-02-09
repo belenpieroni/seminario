@@ -13,41 +13,9 @@ export default function CertificateCard({ certificate, onDownload, onValidated, 
   const handleConfirm = async () => {
     setConfirmOpen(false)
     if (action === "validate") {
-      try {
-        const { error } = await supabase
-          .from("certificate")
-          .update({
-            is_valid: true,
-            validated_by: "d07b6723-ae7b-42c9-b3e4-b4d29af7752f", 
-            validated_at: new Date().toISOString(),
-          })
-          .eq("id", certificate.id)
-
-        if (error) throw error
-        alert("Certificado validado correctamente")
-        onValidated?.(certificate.id)
-      } catch (err) {
-        console.error("Error validando certificado:", err)
-        alert("No se pudo validar el certificado.")
-      }
+      await onValidated?.(certificate, "validate")
     } else if (action === "revoke") {
-      try {
-        const { error } = await supabase
-          .from("certificate")
-          .update({
-            is_valid: false,
-            validated_by: "d07b6723-ae7b-42c9-b3e4-b4d29af7752f",
-            validated_at: new Date().toISOString(),
-          })
-          .eq("id", certificate.id)
-
-        if (error) throw error
-        alert("Certificado revocado correctamente")
-        onValidated?.(certificate.id)
-      } catch (err) {
-        console.error("Error revocando certificado:", err)
-        alert("No se pudo revocar el certificado.")
-      }
+      await onValidated?.(certificate, "revoke")
     }
   }
 
@@ -117,7 +85,7 @@ export default function CertificateCard({ certificate, onDownload, onValidated, 
             onClick={() => { setAction("revoke"); setConfirmOpen(true) }}
             className="px-4 py-2 border border-red-600 text-red-600 uppercase text-xs tracking-wide hover:bg-red-600 hover:text-white transition-colors"
           >
-            Revocar
+            Denegar
           </button>
         </div>
       )}
