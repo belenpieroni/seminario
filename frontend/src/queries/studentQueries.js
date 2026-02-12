@@ -7,7 +7,7 @@ export async function getStudentsByDojo(dojo_id) {
 
   const { data, error } = await supabase
     .from("student")
-    .select("id, full_name, birth_date, current_belt, registered_at, is_active")
+    .select("id, full_name, dni, birth_date, current_belt, registered_at, is_active")
     .eq("dojo_id", dojo_id)
     .eq("is_active", true)
     .order("full_name", { ascending: true });

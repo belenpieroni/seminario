@@ -13,6 +13,7 @@ export function SenseiStudentList() {
   const [showFilters, setShowFilters] = useState(false)
   const [newStudent, setNewStudent] = useState({
     full_name: "",
+    dni: "",
     birth_date: "",
     current_belt: ""
   })
@@ -267,6 +268,7 @@ export function SenseiStudentList() {
         dojo: { id: sensei.dojo_id, name: dojo.name },
         student: {
           full_name: newStudent.full_name,
+          dni: newStudent.dni,
           birth_date: newStudent.birth_date,
           current_belt: newStudent.current_belt
         }
@@ -313,6 +315,17 @@ export function SenseiStudentList() {
                 className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
                 value={newStudent.full_name}
                 onChange={e => setNewStudent({ ...newStudent, full_name: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block mb-2 text-sm uppercase tracking-wide text-gray-600">
+                DNI
+              </label>
+              <input
+                className="w-full px-4 py-2 border border-gray-300 focus:border-[#c41e3a] focus:outline-none"
+                value={newStudent.dni}
+                onChange={e => setNewStudent({ ...newStudent, dni: e.target.value })}
               />
             </div>
 

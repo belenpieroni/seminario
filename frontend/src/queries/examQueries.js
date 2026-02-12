@@ -96,6 +96,7 @@ export async function getExamDetail(examId) {
       id,
       exam_date,
       observations,
+      dojo_id,
       location_dojo:location_dojo_id (
         name,
         head_sensei:head_sensei_id (full_name)
@@ -125,8 +126,10 @@ export async function getExamDetail(examId) {
   return {
     id: data.id,
     date: new Date(data.exam_date).toLocaleDateString("es-AR"),
+    dateNoFormat: data.exam_date,
+    dojoId: data.dojo_id,
     locationDojo: data.location_dojo?.name || "Sede desconocida",
-    senseiName: data.location_dojo?.head_sensei?.full_name || "Sensei desconocido", // ⚠️ ahora correcto
+    senseiName: data.location_dojo?.head_sensei?.full_name || "Sensei desconocido",
     observations: data.observations,
     enrollments: data.enrollments.map((enr) => ({
       id: enr.id,

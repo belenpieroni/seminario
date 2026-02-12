@@ -434,6 +434,7 @@ return (
                   : "nombreapellido@nombredojo.com"}
               </strong>
             </div>
+            <span className="text-gray-700">Contraseña predeterminada: dojo2025</span>{" "}
 
                           <div className="flex justify-between">
                 <button

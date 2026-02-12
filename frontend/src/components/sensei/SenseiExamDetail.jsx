@@ -3,9 +3,11 @@ import { getExamDetail } from "../../queries/examQueries"
 import { Calendar, MapPin, Plus } from "lucide-react"
 import { BackButton } from "../common/BackButton"
 import SenseiExamResultForm from "./SenseiExamResultForm"
+import SenseiEnrollmentStudent from "./SenseiEnrollmentStudent"
 
 export default function SenseiExamDetail({ examId, onBack }) {
   const [exam, setExam] = useState(null)
+  const [showEnroll, setShowEnroll] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedEnrollment, setSelectedEnrollment] = useState(null)
 
@@ -14,6 +16,7 @@ export default function SenseiExamDetail({ examId, onBack }) {
       setLoading(true)
       const detail = await getExamDetail(examId)
       setExam(detail)
+      console.log("Exam detail cargado:", detail)
       setLoading(false)
     }
     fetchDetail()
@@ -43,6 +46,28 @@ export default function SenseiExamDetail({ examId, onBack }) {
       <h3 className="text-lg font-light uppercase tracking-wide text-[#1a1a1a] mb-4">
         Alumnos Inscriptos:{" "}
         <span className="text-[#c41e3a] font-semibold">{exam.enrollments.length}</span>
+        {new Date(exam.dateNoFormat) >= new Date() && (
+          <>
+            <button
+              onClick={() => setShowEnroll(true)}
+              className="flex items-center gap-2 bg-[#c41e3a] text-white px-4 py-2 uppercase text-xs tracking-wide hover:bg-[#a01830] transition-colors ml-4"
+            >
+              <Plus className="w-4 h-4" /> Inscribir más
+            </button>
+
+            {showEnroll && (
+              <SenseiEnrollmentStudent
+                examId={exam.id}
+                dojoId={exam.dojoId}
+                onClose={() => setShowEnroll(false)}
+                onEnrolled={async () => {
+                  const detail = await getExamDetail(examId)
+                  setExam(detail)
+                }}
+              />
+            )}
+          </>
+        )}
       </h3>
 
       <div className="bg-white shadow-lg border border-gray-200 overflow-hidden">
