@@ -94,45 +94,20 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
         const updated = await updateStudentBelt(enrollment.studentId, enrollment.belt)
         alert(`Resultado guardado y grado actualizado a ${updated[0].current_belt}`)
 
-        // Generar certificado PDF
-        const pdfBytes = await pdfGenerate({
-          studentName: enrollment.studentName || studentName || "Alumno",
-          belt: enrollment.belt,
-          examDate: new Date().toLocaleDateString("es-AR"),
-          senseiName: enrollment.senseiName,
-        })
-
-        // 3) Subir PDF a Storage
-        const safeName = (enrollment.studentName || studentName || "Alumno").trim()
-        const fileName = `certificados/${safeName}-${Date.now()}.pdf`
-        const { error: uploadErr } = await supabase.storage
-          .from("certificados")
-          .upload(fileName, new Blob([pdfBytes], { type: "application/pdf" }))
-        if (uploadErr) throw uploadErr
-
-        // 4) Registrar certificado en tabla certificate
-        if (!enrollment.studentId || !enrollment.examId) {
-          alert("Faltan datos de la inscripción (studentId/examId). No se puede registrar el certificado.")
-          setLoading(false)
-          setShowConfirm(false)
-          return
-        }
-
-        // Insertar certificado primero (sin hash) para obtener issued_at
+        // 3) Insertar certificado en DB para obtener issued_at
         const { data: insertedCert, error: certError } = await supabase
           .from("certificate")
           .insert({
             student_id: enrollment.studentId,
             exam_id: enrollment.examId,
             belt: enrollment.belt,
-            pdf_url: fileName,
             is_valid: false,
           })
           .select()
 
         if (certError) throw certError
 
-        // Generar hash usando issued_at de la BBDD
+        // 4) Generar hash
         const issuedAt = insertedCert[0].issued_at
         const dataToHash = `${enrollment.studentId}-${enrollment.examId}-${enrollment.belt}-${issuedAt}`
         const encoder = new TextEncoder()
@@ -141,10 +116,27 @@ export default function SenseiExamResultForm({ enrollment, onClose }) {
         const hashArray = Array.from(new Uint8Array(hashBuffer))
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("")
 
-        // Actualizar el certificado con el hash
+        // 5) Generar PDF con el hash incluido
+        const pdfBytes = await pdfGenerate({
+          studentName: enrollment.studentName || studentName || "Alumno",
+          belt: enrollment.belt,
+          examDate: new Date().toLocaleDateString("es-AR"),
+          senseiName: enrollment.senseiName,
+          hash: hashHex, 
+        })
+
+        // 6) Subir PDF a Storage
+        const safeName = (enrollment.studentName || studentName || "Alumno").trim()
+        const fileName = `certificados/${safeName}-${Date.now()}.pdf`
+        const { error: uploadErr } = await supabase.storage
+          .from("certificados")
+          .upload(fileName, new Blob([pdfBytes], { type: "application/pdf" }))
+        if (uploadErr) throw uploadErr
+
+        // 7) Actualizar certificado con pdf_url y hash
         await supabase
           .from("certificate")
-          .update({ hash: hashHex })
+          .update({ pdf_url: fileName, hash: hashHex })
           .eq("id", insertedCert[0].id)
 
       } catch (err) {

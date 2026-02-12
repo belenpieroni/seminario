@@ -1,6 +1,6 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 
-export async function pdfGenerate({ studentName, belt, examDate, senseiName }) {
+export async function pdfGenerate({ studentName, belt, examDate, senseiName, hash }) {
   try {
     console.log("📄 Iniciando generación de certificado para:", studentName)
 
@@ -17,13 +17,26 @@ export async function pdfGenerate({ studentName, belt, examDate, senseiName }) {
     const color = rgb(0, 0, 0)
 
     // 4. Escribir los datos en las coordenadas
-    console.log("✍️ Escribiendo datos:", { studentName, belt, examDate, senseiName })
     page.drawText(studentName, { x: 330, y: 335, size: 25, font, color })
     page.drawText(belt,        { x: 375, y: 230, size: 25, font, color })
     page.drawText(examDate,    { x: 390, y: 140, size: 18, font, color })
     page.drawText(senseiName,  { x: 140, y: 100, size: 14, font, color })
 
-    // 5. Guardar el nuevo PDF en memoria
+    // 5. Escribir el hash arriba a la derecha
+    const { width, height } = page.getSize()
+    const hashText = `Hash: ${hash}`
+    const fontSize = 10
+    const textWidth = font.widthOfTextAtSize(hashText, fontSize)
+
+    page.drawText(hashText, {
+      x: width - textWidth - 20, // margen derecho
+      y: height - 30,            // margen superior
+      size: fontSize,
+      font,
+      color,
+    })
+
+    // 6. Guardar el nuevo PDF en memoria
     const pdfBytes = await pdfDoc.save()
     console.log("✅ PDF generado en memoria, tamaño:", pdfBytes.length)
 
